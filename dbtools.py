@@ -31,7 +31,9 @@ class Dbtool:
         print(sql)
         cur = self.conn.cursor()
         cur.execute(sql)
+        #print(cur.description[0][0], cur.description[0][1] , cur.description[1][0], cur.description[1][1])
         rows = cur.fetchall()
+
 
         return rows
 
@@ -75,18 +77,39 @@ class Dbtool:
 
         self.conn.commit()
 
+    def retornarColunasTypes(self, nomeTabela):
+        sql = "SELECT column_name, data_type FROM information_schema.columns WHERE table_name = '" + nomeTabela + "';"
+        cur = self.conn.cursor()
+        cur.execute(sql)
+        rows = cur.fetchall()
+        d = dict(rows)
+        return d
+
+    def retornarColunasIndex (self, nomeTabela):
+        sql = "SELECT * FROM " + nomeTabela + " LIMIT 1"
+        cur = self.conn.cursor()
+        cur.execute(sql)
+        colNomes = []
+        i = 0
+        for col in cur.description:
+            colNomes.append([col[0], i])
+            i = i+1
+        return dict(colNomes)
 
 p = Dbtool()
-tab = ["mgs as mg", "ibges as ib"]
-col = ["cod_municipio", "cod_munic_ibge_5_fam"]
+# tab = ["mgs as mg", "ibges as ib"]
+# col = ["cod_municipio", "cod_munic_ibge_5_fam"]
 cod = ""
-# r = p.selecionarTabela(tab, col, cod, 1)
+# # r = p.selecionarTabela(tab, col, cod, 1)
+#
+# p.criartabela('guilherme', ['id integer', 'nome varchar(255)'], 1)
+#
+# dat = [['1', "'gui'"], ['2', "'goi'"]]
+# p.inseirdados('guilherme', dat)
+#
+#r = p.selecionarTabela(["guilherme"], "* ", cod, 1)
+r = p.retornarColunasIndex("guilherme")
 
-p.criartabela('guilherme', ['id integer', 'nome varchar(255)'], 1)
 
-dat = [['1', "'gui'"], ['2', "'goi'"]]
-p.inseirdados('guilherme', dat)
-
-r = p.selecionarTabela(["guilherme"], "* ", cod, 0)
 
 print(r)

@@ -32,5 +32,5 @@ class Similaridade:
 
 
 s = Similaridade()
-resp = s.dice_coefficient2("guilherme", "guilrme")
+resp = s.dice_coefficient1("casa", "casal")
 print(resp)
