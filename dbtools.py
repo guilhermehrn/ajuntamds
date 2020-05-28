@@ -2,13 +2,13 @@ import psycopg2
 
 
 class Dbtool:
-    def __init__(self):
+    def __init__(self, host, porta, dbase, user, password):
 
-        self.host = "localhost"
-        self.port = "5432"
-        self.db = "mds-cad-unico"
-        self.user = "postgres"
-        self.password = "2631"
+        self.host = host
+        self.port = porta
+        self.db = dbase
+        self.user = user
+        self.password = password
 
         self.conn = psycopg2.connect(
             " dbname=" + self.db + " user=" + self.user + " host=" + self.host + " password=" + self.password)
@@ -21,7 +21,7 @@ class Dbtool:
 
         sql = sql + " from " + ', '.join([nomeSchema + '."' + x + '"' for x in nometabela])
 
-        print(sql)
+        #print(sql)
 
         if condicoes != '':
             sql = sql + " where " + condicoes + " "
@@ -30,7 +30,7 @@ class Dbtool:
             sql = sql + " " + "limit " + str(limitlinhas)
         sql = sql + ";"
 
-        print(sql)
+        #print(sql)
         cur = self.conn.cursor()
         cur.execute(sql)
         #print(cur.description[0][0], cur.description[0][1] , cur.description[1][0], cur.description[1][1])
@@ -54,11 +54,11 @@ class Dbtool:
             # print("Erro ao dropar tabela " + nometabela)
 
         try:
-            print(sql)
+            #print(sql)
             sql = "CREATE TABLE " + nomeSchema + '."' + nomeTabela + '"'
             sql = sql + "( " + ', '.join(listaAtributos) + " );"
 
-            print(sql)
+            #print(sql)
             cur = self.conn.cursor()
             cur.execute(sql)
             self.conn.commit()
@@ -102,7 +102,7 @@ class Dbtool:
     def criarVewDeUmaTabela(self, nomeSchema, nomeView, nomeTabela, condicao):
         select = "SELECT * FROM " + nomeSchema + '."' + nomeTabela + '" WHERE ' + condicao
         sql = 'CREATE OR REPLACE VIEW ' + nomeSchema + '."' + nomeView + '" AS (' + select + ");"
-        print(sql)
+        #print(sql)
         try:
             cur = self.conn.cursor()
             cur.execute(sql)
@@ -135,8 +135,7 @@ class Dbtool:
 
 
 
-
-p = Dbtool()
+#p = Dbtool("localhost","5432","mds-cad-unico","postgres","")
 # tab = ["mgs as mg", "ibges as ib"]
 # col = ["cod_municipio", "cod_munic_ibge_5_fam"]
 cod = ""
