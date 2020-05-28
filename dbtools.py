@@ -21,7 +21,7 @@ class Dbtool:
 
         sql = sql + " from " + ', '.join([nomeSchema + '."' + x + '"' for x in nometabela])
 
-        #print(sql)
+        # print(sql)
 
         if condicoes != '':
             sql = sql + " where " + condicoes + " "
@@ -30,12 +30,11 @@ class Dbtool:
             sql = sql + " " + "limit " + str(limitlinhas)
         sql = sql + ";"
 
-        #print(sql)
+        print(sql)
         cur = self.conn.cursor()
         cur.execute(sql)
-        #print(cur.description[0][0], cur.description[0][1] , cur.description[1][0], cur.description[1][1])
+        # print(cur.description[0][0], cur.description[0][1] , cur.description[1][0], cur.description[1][1])
         rows = cur.fetchall()
-
 
         return rows
 
@@ -54,11 +53,11 @@ class Dbtool:
             # print("Erro ao dropar tabela " + nometabela)
 
         try:
-            #print(sql)
+            # print(sql)
             sql = "CREATE TABLE " + nomeSchema + '."' + nomeTabela + '"'
             sql = sql + "( " + ', '.join(listaAtributos) + " );"
 
-            #print(sql)
+            # print(sql)
             cur = self.conn.cursor()
             cur.execute(sql)
             self.conn.commit()
@@ -87,7 +86,7 @@ class Dbtool:
         d = dict(rows)
         return d
 
-    def retornarColunasIndex (self, nomeSchema, nomeTabela):
+    def retornarColunasIndex(self, nomeSchema, nomeTabela):
         sql = "SELECT * FROM " + nomeSchema + '."' + nomeTabela + '"' + " LIMIT 1"
         cur = self.conn.cursor()
         cur.execute(sql)
@@ -95,14 +94,13 @@ class Dbtool:
         i = 0
         for col in cur.description:
             colNomes.append([col[0], i])
-            i = i+1
+            i = i + 1
         return dict(colNomes)
 
-
-    def criarVewDeUmaTabela(self, nomeSchema, nomeView, nomeTabela, condicao):
-        select = "SELECT * FROM " + nomeSchema + '."' + nomeTabela + '" WHERE ' + condicao
+    def criarVewDeUmaTabela(self, nomeSchema, nomeView, nomeTabela, condicao, outrasClausulas):
+        select = "SELECT * FROM " + nomeSchema + '."' + nomeTabela + '" WHERE ' + condicao + " " + outrasClausulas
         sql = 'CREATE OR REPLACE VIEW ' + nomeSchema + '."' + nomeView + '" AS (' + select + ");"
-        #print(sql)
+        # print(sql)
         try:
             cur = self.conn.cursor()
             cur.execute(sql)
@@ -121,9 +119,14 @@ class Dbtool:
         except (Exception, psycopg2.DatabaseError) as error:
             print(error)
 
-    def criarTabelaDeGrupos(self, nomeSchema, nomeTabela, nomeTabelaOrigem, campoTabelaOrigem):
-        select = "SELECT " + campoTabelaOrigem + ", count (*) quantidade " + 'FROM ' + nomeSchema + '."' + nomeTabelaOrigem + '" GROUP BY ' + campoTabelaOrigem
+    def criarTabelaDeGrupos(self, nomeSchema, nomeTabela, nomeTabelaOrigem, campoTabelaOrigem, temQueDropar):
+        select = "SELECT " + campoTabelaOrigem + ", count (*) AS quantidade " + 'FROM ' + nomeSchema + '."' + nomeTabelaOrigem + '" GROUP BY ' + campoTabelaOrigem + " ORDER BY " + campoTabelaOrigem
         sql = "CREATE MATERIALIZED VIEW " + nomeSchema + '."' + nomeTabela + '" AS (' + select + ');'
+
+        if temQueDropar:
+            cur = self.conn.cursor()
+            cur.execute("DROP MATERIALIZED VIEW IF EXISTS " + nomeSchema + '."' + nomeTabela + '"')
+            self.conn.commit()
 
         try:
             cur = self.conn.cursor()
@@ -132,28 +135,24 @@ class Dbtool:
         except (Exception, psycopg2.DatabaseError) as error:
             print(error)
 
-
-
-
-#p = Dbtool("localhost","5432","mds-cad-unico","postgres","")
+# p = Dbtool("localhost","5432","mds-cad-unico","postgres","")
 # tab = ["mgs as mg", "ibges as ib"]
 # col = ["cod_municipio", "cod_munic_ibge_5_fam"]
-cod = ""
-#r = p.selecionarTabela("cnefe_rr_14", ["14_rr"],["*"] ,cod, 1)
+# cod = ""
+# r = p.selecionarTabela("cnefe_rr_14", ["14_rr"],["*"] ,cod, 1)
 #
-#p.criartabela("public",'guilherme', ['id integer', 'nome varchar(255)'], 1)
+# p.criartabela("public",'guilherme', ['id integer', 'nome varchar(255)'], 1)
 #
-#dat = [['1', "'gui'"], ['2', "'goi'"]]
-#p.inseirdados("public",'guilherme', dat)
+# dat = [['1', "'gui'"], ['2', "'goi'"]]
+# p.inseirdados("public",'guilherme', dat)
 #
 
-#r = p.selecionarTabela("public",["guilherme"], ["nome"], cod, 1)
-#r = p.criarVewDeUmaTabela("cnefe_rr_14", "teste", "14_rr", "cod_municipio=27")
-#r = p.criarIndex("cnefe_rr_14", "14_rr", "cod_municipio", "guil")
-#r = p.retornarColunasTypes("public","guilherme")
-#r = p.retornarColunasIndex("public","guilherme")
-#r = p.criarTabelaDeGrupos("cnefe_rr_14","grupo" ,"14_rr", "cod_municipio")
+# r = p.selecionarTabela("public",["guilherme"], ["nome"], cod, 1)
+# r = p.criarVewDeUmaTabela("cnefe_rr_14", "teste", "14_rr", "cod_municipio=27")
+# r = p.criarIndex("cnefe_rr_14", "14_rr", "cod_municipio", "guil")
+# r = p.retornarColunasTypes("public","guilherme")
+# r = p.retornarColunasIndex("public","guilherme")
+# r = p.criarTabelaDeGrupos("cnefe_rr_14","grupo" ,"14_rr", "cod_municipio")
 
 
-
-print(r)
+# print(r)
