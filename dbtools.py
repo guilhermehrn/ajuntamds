@@ -13,13 +13,15 @@ class Dbtool:
         self.conn = psycopg2.connect(
             " dbname=" + self.db + " user=" + self.user + " host=" + self.host + " password=" + self.password)
 
-    def selecionarTabela(self, nometabela, atributos, condicoes, limitlinhas):
+    def selecionarTabela(self, nomeSchema, nometabela, atributos, condicoes, limitlinhas):
 
         sql = "select * "
         if type(atributos) is list:
             sql = "select " + ', '.join(atributos)
 
-        sql = sql + " from " + ', '.join(nometabela)
+        sql = sql + " from " + ', '.join([nomeSchema + '."' + x + '"' for x in nometabela])
+
+        print(sql)
 
         if condicoes != '':
             sql = sql + " where " + condicoes + " "
@@ -37,11 +39,11 @@ class Dbtool:
 
         return rows
 
-    def criartabela(self, nomeTabela, listaAtributos, temQueDropar):
+    def criartabela(self, nomeSchema, nomeTabela, listaAtributos, temQueDropar):
 
         try:
             if temQueDropar:
-                sql = "DROP TABLE IF EXISTS " + nomeTabela
+                sql = "DROP TABLE IF EXISTS " + nomeSchema + '."' + nomeTabela + '"'
                 print(sql)
                 cur = self.conn.cursor()
                 cur.execute(sql)
@@ -53,7 +55,7 @@ class Dbtool:
 
         try:
             print(sql)
-            sql = "CREATE TABLE " + nomeTabela
+            sql = "CREATE TABLE " + nomeSchema + '."' + nomeTabela + '"'
             sql = sql + "( " + ', '.join(listaAtributos) + " );"
 
             print(sql)
@@ -64,8 +66,8 @@ class Dbtool:
         except (Exception, psycopg2.DatabaseError) as error:
             print(error)
 
-    def inseirdados(self, nomeTabela, intensParaInserir):
-        sqlpart1 = "INSERT INTO " + nomeTabela + " VALUES "
+    def inseirdados(self, nomeSchema, nomeTabela, intensParaInserir):
+        sqlpart1 = "INSERT INTO " + nomeSchema + '."' + nomeTabela + '"' + " VALUES "
         cur = self.conn.cursor()
         for row in intensParaInserir:
             sqlpart2 = "( " + ','.join(row) + ")"
@@ -77,16 +79,16 @@ class Dbtool:
 
         self.conn.commit()
 
-    def retornarColunasTypes(self, nomeTabela):
-        sql = "SELECT column_name, data_type FROM information_schema.columns WHERE table_name = '" + nomeTabela + "';"
+    def retornarColunasTypes(self, nomeSchema, nomeTabela):
+        sql = "SELECT column_name, data_type FROM information_schema.columns WHERE table_schema = '" + nomeSchema + "' AND table_name = '" + nomeTabela + "';"
         cur = self.conn.cursor()
         cur.execute(sql)
         rows = cur.fetchall()
         d = dict(rows)
         return d
 
-    def retornarColunasIndex (self, nomeTabela):
-        sql = "SELECT * FROM " + nomeTabela + " LIMIT 1"
+    def retornarColunasIndex (self, nomeSchema, nomeTabela):
+        sql = "SELECT * FROM " + nomeSchema + '."' + nomeTabela + '"' + " LIMIT 1"
         cur = self.conn.cursor()
         cur.execute(sql)
         colNomes = []
@@ -96,19 +98,62 @@ class Dbtool:
             i = i+1
         return dict(colNomes)
 
+
+    def criarVewDeUmaTabela(self, nomeSchema, nomeView, nomeTabela, condicao):
+        select = "SELECT * FROM " + nomeSchema + '."' + nomeTabela + '" WHERE ' + condicao
+        sql = 'CREATE OR REPLACE VIEW ' + nomeSchema + '."' + nomeView + '" AS (' + select + ");"
+        print(sql)
+        try:
+            cur = self.conn.cursor()
+            cur.execute(sql)
+            self.conn.commit()
+        except (Exception, psycopg2.DatabaseError) as error:
+            print(error)
+
+    def criarIndex(self, nomeSchema, nomeTabela, nomeColuna, nomeIndex):
+
+        sql = "CREATE INDEX " + nomeIndex + " ON " + nomeSchema + '."' + nomeTabela + '"(' + nomeColuna + " ASC);"
+
+        try:
+            cur = self.conn.cursor()
+            cur.execute(sql)
+            self.conn.commit()
+        except (Exception, psycopg2.DatabaseError) as error:
+            print(error)
+
+    def criarTabelaDeGrupos(self, nomeSchema, nomeTabela, nomeTabelaOrigem, campoTabelaOrigem):
+        select = "SELECT " + campoTabelaOrigem + ", count (*) quantidade " + 'FROM ' + nomeSchema + '."' + nomeTabelaOrigem + '" GROUP BY ' + campoTabelaOrigem
+        sql = "CREATE MATERIALIZED VIEW " + nomeSchema + '."' + nomeTabela + '" AS (' + select + ');'
+
+        try:
+            cur = self.conn.cursor()
+            cur.execute(sql)
+            self.conn.commit()
+        except (Exception, psycopg2.DatabaseError) as error:
+            print(error)
+
+
+
+
+
 p = Dbtool()
 # tab = ["mgs as mg", "ibges as ib"]
 # col = ["cod_municipio", "cod_munic_ibge_5_fam"]
 cod = ""
-# # r = p.selecionarTabela(tab, col, cod, 1)
+#r = p.selecionarTabela("cnefe_rr_14", ["14_rr"],["*"] ,cod, 1)
 #
-# p.criartabela('guilherme', ['id integer', 'nome varchar(255)'], 1)
+#p.criartabela("public",'guilherme', ['id integer', 'nome varchar(255)'], 1)
 #
-# dat = [['1', "'gui'"], ['2', "'goi'"]]
-# p.inseirdados('guilherme', dat)
+#dat = [['1', "'gui'"], ['2', "'goi'"]]
+#p.inseirdados("public",'guilherme', dat)
 #
-#r = p.selecionarTabela(["guilherme"], "* ", cod, 1)
-r = p.retornarColunasIndex("guilherme")
+
+#r = p.selecionarTabela("public",["guilherme"], ["nome"], cod, 1)
+#r = p.criarVewDeUmaTabela("cnefe_rr_14", "teste", "14_rr", "cod_municipio=27")
+#r = p.criarIndex("cnefe_rr_14", "14_rr", "cod_municipio", "guil")
+#r = p.retornarColunasTypes("public","guilherme")
+#r = p.retornarColunasIndex("public","guilherme")
+#r = p.criarTabelaDeGrupos("cnefe_rr_14","grupo" ,"14_rr", "cod_municipio")
 
 
 
