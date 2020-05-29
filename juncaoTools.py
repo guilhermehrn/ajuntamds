@@ -1,3 +1,6 @@
+import math
+import time
+
 from dbtools import Dbtool
 from similaridade import Similaridade
 
@@ -16,7 +19,7 @@ class JuncaoTools:
 
         print("Buscando os dados do  cad unico no baco.")
 
-        self.conjuntoCadUnic = self.bd.selecionarTabela(nomeSchemaCadUnic, [tabelaCadUnic], ["*"], '', 100)
+        self.conjuntoCadUnic = self.bd.selecionarTabela(nomeSchemaCadUnic, [tabelaCadUnic], ["*"], '', 0)
 
         print("Buscando Indexadores.")
 
@@ -66,7 +69,7 @@ class JuncaoTools:
 
         arq = open('saida2.csv', 'a')
         arq2 = open('log-erro.csv', 'w')
-
+        diceCoef=0.0
 
         for familia in self.conjuntoCadUnic:
 
@@ -79,6 +82,7 @@ class JuncaoTools:
                                                                     '', 0)
 
                 self.conjuntoCidadeCnefeDic = {}
+                self.quantidadeConjCnefe = {}
 
                 print("Montando arvore para cidade " + str(cidadeCorrente))
                 for linha in self.conjuntoCidadeCnefe:
@@ -87,8 +91,10 @@ class JuncaoTools:
 
                     if preCepCnefe in self.conjuntoCidadeCnefeDic:
                         self.conjuntoCidadeCnefeDic[preCepCnefe].append(linha)
+                        self.quantidadeConjCnefe[preCepCnefe] = self.quantidadeConjCnefe[preCepCnefe] + 1
                     else:
                         self.conjuntoCidadeCnefeDic[preCepCnefe] = [linha]
+                        self.quantidadeConjCnefe[preCepCnefe] = 1
                 print("comparando enderecos na cidade " + str(cidadeCorrente))
 
             enderecoCadUnic = [familia[mascaraEnderecoCadUnic[0]], familia[mascaraEnderecoCadUnic[1]],
@@ -100,14 +106,19 @@ class JuncaoTools:
 
             preCepCad = str(int(familia[self.indexColCadUnic["num_cep_logradouro_fam"]])//1000)
 
+            i = 0
+            diceCoef = 0
             if preCepCad in self.conjuntoCidadeCnefeDic:
 
-                for endereco in self.conjuntoCidadeCnefeDic[preCepCad]:
+                while not(math.isclose(diceCoef, 1.0)) and i < self.quantidadeConjCnefe[preCepCad]:
+                #for endereco in self.conjuntoCidadeCnefeDic[preCepCad]:
+                    endereco = self.conjuntoCidadeCnefeDic[preCepCad][i]
 
                     enderecoCnefe = [endereco[mascaraEnderecoCnefe[0]], endereco[mascaraEnderecoCnefe[1]],
                                  endereco[mascaraEnderecoCnefe[2]], str(endereco[mascaraEnderecoCnefe[3]]),
                                  endereco[mascaraEnderecoCnefe[4]]
                                  ]
+
                     idEndereco = int(endereco[self.indexColCnefe["cod_unico_endereco"]])
 
                     diceCoef = self.similar.dice_coefficient2(','.join(enderecoCadUnic), ','.join(enderecoCnefe))
@@ -115,8 +126,10 @@ class JuncaoTools:
                     if diceCoef > resultadosPar[2]:
                         resultadosPar = (idfamilia, idEndereco, diceCoef)
 
+                    i = i+1
+
             else:
-                arq2.write(str(idfamilia) + ";" + preCepCad)
+                arq2.write(str(idfamilia) + ";" + preCepCad + "\n")
 
 
             resp = str(resultadosPar[0]) + "," + str(resultadosPar[1]) + "," + str(resultadosPar[2]) + "\n"
@@ -187,8 +200,14 @@ class JuncaoTools:
 
 
 j = JuncaoTools()
-j.juncaoTabelas("cad_unic_2019", "base_cad_unic_2019_14", "cnefe_rr_14", "14_rr")
 
+
+ini = time.time()
+j.juncaoTabelas("cad_unic_2019", "base_cad_unic_2019_14", "cnefe_rr_14", "14_rr")
+fim = time.time()
+
+print("\n=========================================\n")
+print("Tempo: " + str(fim-ini))
 ## 1 traz a tabela do CAD do estado MG;
 ## 2 tras a tabela agrupada por cidade e quantiade de familhas do CAD
 ## for cidade da tabela agrupada traz a tabela da cidade do CNEFE no banco
