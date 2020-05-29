@@ -30,7 +30,7 @@ class Dbtool:
             sql = sql + " " + "limit " + str(limitlinhas)
         sql = sql + ";"
 
-        print(sql)
+        #print(sql)
         cur = self.conn.cursor()
         cur.execute(sql)
         # print(cur.description[0][0], cur.description[0][1] , cur.description[1][0], cur.description[1][1])

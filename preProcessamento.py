@@ -24,6 +24,7 @@ class PreProcessamento:
 
             self.db.criarVewDeUmaTabela(nomeSchema, nometabelaCidade, nomeTabela, capoAgrupamento + " = " + str(cidade[0]),
                                         '')
+
     def preProcessarBaseCadUnico(self, nomeSchema, nomeTabela,):
         nomeTabGrupoEstado = "grupo_estado_" + nomeTabela
         capoAgrupamento = "cod_munic_ibge_2_fam"
@@ -32,12 +33,13 @@ class PreProcessamento:
         tabGrupoEstados = self.db.selecionarTabela(nomeSchema, [nomeTabGrupoEstado], ["*"], "", 0)
 
         for estado in tabGrupoEstados:
-            nometabelaEstado= nomeTabela + "_" + str(estado[0])
+            nometabelaEstado = nomeTabela + "_" + str(estado[0])
 
             self.db.criarVewDeUmaTabela(nomeSchema, nometabelaEstado, nomeTabela, capoAgrupamento + " = " + str(estado[0]),
-                                        '')
+                                        'ORDER BY cod_munic_ibge_5_fam ASC')
 
 
-p = PreProcessamento("localhost", "5432", "mds-cad-unico", "postgres", "2631")
+
+#p = PreProcessamento("localhost", "5432", "mds-cad-unico", "postgres", "2631")
 #p.preProcessarBaseCnefe("cnefe_rr_14", "14_rr")
-p.preProcessarBaseCadUnico("cad_unic_2019","base_cad_unic_2019")
+#p.preProcessarBaseCadUnico("cad_unic_2019","base_cad_unic_2019")

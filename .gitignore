@@ -531,5 +531,7 @@ __pycache__/
 cad_unic_bh.csv
 cnefe_bh.csv
 juncao_caduni_cnefe.csv
-saida.csv
+saida2.csv
 venv/
+!/saida2.csv
+log-erro.csv
