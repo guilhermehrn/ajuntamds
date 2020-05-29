@@ -533,5 +533,5 @@ cnefe_bh.csv
 juncao_caduni_cnefe.csv
 saida2.csv
 venv/
-!/saida2.csv
+saida2.csv
 log-erro.csv
