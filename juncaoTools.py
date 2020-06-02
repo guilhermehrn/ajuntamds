@@ -4,6 +4,7 @@ import time
 from dbtools import Dbtool
 from similaridade import Similaridade
 import concurrent.futures
+from multiprocessing import Process
 import os
 from concurrent.futures import ALL_COMPLETED
 import threading
@@ -22,9 +23,11 @@ class JuncaoTools:
         self.numTotalInstancias = 0
         self.numThread = numtheads
         self.tarefasParaTheads = []
+        self.respostasThreads = []
         self.numInstanciasCadUnicPorThread = 1
         self.indexCadUnic = []
         self.indexCnefe = []
+
 
         self.mascaraEnderecoCadUnic = ["nom_tip_logradouro_fam",
                                        "nom_tit_logradouro_fam",
@@ -79,6 +82,7 @@ class JuncaoTools:
         self.numInstanciasCadUnicPorThread = self.numTotalInstancias // self.numThread
         aux = 0
         for i in range(self.numThread):
+            self.respostasThreads.append([])
 
             if i == 0:
                 self.tarefasParaTheads.append(self.conjuntoCadUnic[i: self.numInstanciasCadUnicPorThread])
@@ -105,6 +109,8 @@ class JuncaoTools:
         #conjuntoCidadeCnefe = []
         #resultadosPar = (1, 1, 0.0)
         diceCoef = 0.0
+
+        dbaseth = Dbtool("localhost", "5432", "mds_cad_unic", "postgres", "2631")
 
         for familia in self.tarefasParaTheads[faixaCadUnico]:
 
@@ -164,9 +170,13 @@ class JuncaoTools:
 
                     i = i + 1
 
-            resp = [str(resultadosPar[0]), str(resultadosPar[1]), str(resultadosPar[2])]
-            self.bd.inseirdados(nomeSchemaResult, nomeTabelaResult, [resp])
+            #resp = [str(resultadosPar[0]), str(resultadosPar[1]), str(resultadosPar[2])]
+            self.respostasThreads[faixaCadUnico].append(resultadosPar)
+            #self.bd.inseirdados(nomeSchemaResult, nomeTabelaResult, [resp])
 
+    def armazenarRespostas(self, nomeSchema, tabelaResultado):
+        for item in self.respostasThreads:
+            self.bd.inseirdados(nomeSchema,tabelaResultado, item)
 
     def juntarTabelas(self, nomeSchemaCadUnic, tabelaCadUnic, nomeScehemaCnefe, tabelaCnefe):
 
@@ -177,15 +187,21 @@ class JuncaoTools:
         self.criarMascaraEnderecos()
 
         threads = []
-        executor = concurrent.futures.ThreadPoolExecutor(max_workers=self.numThread, thread_name_prefix="Minion")
+        #executor = concurrent.futures.ThreadPoolExecutor(max_workers=self.numThread, thread_name_prefix="Minion")
         for i in range(self.numThread):
-            threads.append(executor.submit(self.compararTabelas, nomeScehemaCnefe, tabelaCnefe, i, "public", nomeTabelaResult))
+            threads.append(Process(target=self.compararTabelas, args=(nomeScehemaCnefe, tabelaCnefe, i, "public", nomeTabelaResult)))
+
+        for i in range(self.numThread):
+            threads[i].start()
+            threads[i].join()
             #self.compararTabelas(nomeScehemaCnefe,tabelaCnefe, i,"public", nomeTabelaResult)
             #print(threads[i])
 
-        executor.shutdown(wait=True)
+        #executor.shutdown(wait=True)
 
-        #concurrent.futures.wait(threads, timeout=None, return_when=ALL_COMPLETED)
+    #concurrent.futures.wait(threads, timeout=None, return_when=ALL_COMPLETED)
+
+
 
 
 

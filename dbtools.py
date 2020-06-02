@@ -143,6 +143,8 @@ class Dbtool:
         return int(rows[0][0])
 
 p = Dbtool("localhost","5432","mds_cad_unic","postgres","2631")
+
+
 # tab = ["mgs as mg", "ibges as ib"]
 # col = ["cod_municipio", "cod_munic_ibge_5_fam"]
 # cod = ""
