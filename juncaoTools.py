@@ -3,20 +3,56 @@ import time
 
 from dbtools import Dbtool
 from similaridade import Similaridade
+import concurrent.futures
+import os
+from concurrent.futures import ALL_COMPLETED
+import threading
 
 
 class JuncaoTools:
-    def __init__(self):
+    def __init__(self, numtheads):
         self.bd = Dbtool("localhost", "5432", "mds_cad_unic", "postgres", "2631")
         self.similar = Similaridade()
+        self.indexColCadUnic = {}
+        self.tiposColCadUnic = {}
+        self.indexColCnefe = {}
+        self.tiposColCnefe = {}
+        self.numInstancidadesCadUnicDic = {}
+        self.codCidadesOrdenadaslist = []
+        self.numTotalInstancias = 0
+        self.numThread = numtheads
+        self.tarefasParaTheads = []
+        self.numInstanciasCadUnicPorThread = 1
+        self.indexCadUnic = []
+        self.indexCnefe = []
+
+        self.mascaraEnderecoCadUnic = ["nom_tip_logradouro_fam",
+                                       "nom_tit_logradouro_fam",
+                                       "nom_logradouro_fam",
+                                       "num_logradouro_fam",
+                                       #"des_complemento_fam",
+                                       "nom_localidade_fam",
+                                       "cod_munic_ibge_5_fam",
+                                       "cod_munic_ibge_2_fam" ]
+
+        self.mascaraEnderecoCnefe = ["nom_tipo_seglogr",
+                                     "nom_titulo_seglogr",
+                                     "nom_seglogr",
+                                     "num_endereco",
+                                     #"dsc_modificador",
+                                     "dsc_localidade",
+                                     "cod_municipio",
+                                     "cod_uf"]
+
+
+
 
     def printarLista(self, lista):
         print("==>> Resutados finais :")
         for int in lista:
             print(int)
 
-    def juncaoTabelas(self, nomeSchemaCadUnic, tabelaCadUnic, nomeScehemaCnefe, tabelaCnefe):
-
+    def prepararDividirTarefa(self, nomeSchemaCadUnic, tabelaCadUnic, nomeScehemaCnefe, tabelaCnefe):
         print("Buscando os dados do  cad unico no baco.")
 
         self.conjuntoCadUnic = self.bd.selecionarTabela(nomeSchemaCadUnic, [tabelaCadUnic], ["*"], '', 0)
@@ -25,6 +61,9 @@ class JuncaoTools:
 
         self.indexColCadUnic = self.bd.retornarColunasIndex(nomeSchemaCadUnic, tabelaCadUnic)
         self.tiposColCadUnic = self.bd.retornarColunasTypes(nomeSchemaCadUnic, tabelaCadUnic)
+
+        self.indexColCnefe = self.bd.retornarColunasIndex(nomeScehemaCnefe, tabelaCnefe)
+        self.tiposColCnefe = self.bd.retornarColunasTypes(nomeScehemaCnefe, tabelaCnefe)
 
         print("Criando grupos de cidades.")
         nometabelagrupoAux = tabelaCadUnic + "aux"
@@ -35,89 +74,86 @@ class JuncaoTools:
             self.bd.selecionarTabela(nomeSchemaCadUnic, [nometabelagrupoAux], ["*"], '', 0))
         self.codCidadesOrdenadaslist = list(self.numInstancidadesCadUnicDic.keys())
 
+        self.numTotalInstancias = self.bd.contarInstancias(nomeSchemaCadUnic, tabelaCadUnic)
+
+        self.numInstanciasCadUnicPorThread = self.numTotalInstancias // self.numThread
+        aux = 0
+        for i in range(self.numThread):
+
+            if i == 0:
+                self.tarefasParaTheads.append(self.conjuntoCadUnic[i: self.numInstanciasCadUnicPorThread])
+                aux += self.numInstanciasCadUnicPorThread
+            if i == (self.numThread - 1):
+                self.tarefasParaTheads.append(self.conjuntoCadUnic[aux: self.numTotalInstancias])
+
+            else:
+                self.tarefasParaTheads.append(self.conjuntoCadUnic[aux: (aux + self.numInstanciasCadUnicPorThread)])
+                aux = aux + self.numInstanciasCadUnicPorThread
+
+    def criarMascaraEnderecos(self):
+
+        for i in range(len(self.mascaraEnderecoCadUnic)):
+            cad = self.mascaraEnderecoCadUnic[i]
+            cenef = self.mascaraEnderecoCnefe[i]
+            self.indexCadUnic.append(self.indexColCadUnic[cad])
+            self.indexCnefe.append(self.indexColCnefe[cenef])
+
+    def compararTabelas(self, nomeScehemaCnefe, tabelaCnefe, faixaCadUnico, nomeSchemaResult, nomeTabelaResult):
+
         cidadeCorrente = 0
-        self.conjuntoCidadeCnefe = []
 
-        mascaraEnderecoCadUnic = [self.indexColCadUnic["nom_tip_logradouro_fam"],
-                                  self.indexColCadUnic["nom_tit_logradouro_fam"],
-                                  self.indexColCadUnic["nom_logradouro_fam"],
-                                  self.indexColCadUnic["num_logradouro_fam"],
-                                  # self.indexColCadUnic["des_complemento_fam"],
-                                  self.indexColCadUnic["nom_localidade_fam"],
-                                  self.indexColCadUnic["cod_munic_ibge_5_fam"],
-                                  self.indexColCadUnic["cod_munic_ibge_2_fam"]
-                                  ]
+        #conjuntoCidadeCnefe = []
+        #resultadosPar = (1, 1, 0.0)
+        diceCoef = 0.0
 
-        self.indexColCnefe = self.bd.retornarColunasIndex(nomeScehemaCnefe, tabelaCnefe)
-        self.tiposColCnefe = self.bd.retornarColunasTypes(nomeScehemaCnefe, tabelaCnefe)
-
-        mascaraEnderecoCnefe = [self.indexColCnefe["nom_tipo_seglogr"],
-                                self.indexColCnefe["nom_titulo_seglogr"],
-                                self.indexColCnefe["nom_seglogr"],
-                                self.indexColCnefe["num_endereco"],
-                                # self.indexColCnefe["dsc_modificador"],
-                                self.indexColCnefe["dsc_localidade"],
-                                self.indexColCnefe["cod_municipio"],
-                                self.indexColCnefe["cod_uf"]
-                                ]
-
-        resultadosPar = (1, 1, 0.0)
-
-        arq = open('saida2.csv', 'w')
-        arq.write("cod_familiar_fam; cod_unico_endereco; Dice_coeficiente\n")
-        arq.close()
-
-        arq = open('saida2.csv', 'a')
-        arq2 = open('log-erro.csv', 'w')
-        diceCoef=0.0
-
-        for familia in self.conjuntoCadUnic:
+        for familia in self.tarefasParaTheads[faixaCadUnico]:
 
             if int(familia[5]) != cidadeCorrente:
+                t = str(threading.get_ident())
 
                 cidadeCorrente = int(familia[5])
-                print("buscando a Cidade " + str(cidadeCorrente))
+                print(t + ": buscando a Cidade " + str(cidadeCorrente))
                 nometabelaCnefeCorrente = tabelaCnefe + "_" + str(cidadeCorrente)
-                self.conjuntoCidadeCnefe = self.bd.selecionarTabela(nomeScehemaCnefe, [nometabelaCnefeCorrente], ["*"],
-                                                                    '', 0)
 
-                self.conjuntoCidadeCnefeDic = {}
-                self.quantidadeConjCnefe = {}
+                conjuntoCidadeCnefe = self.bd.selecionarTabela(nomeScehemaCnefe, [nometabelaCnefeCorrente], ["*"], '', 0)
+                conjuntoCidadeCnefeDic = {}
+                quantidadeConjCnefe = {}
 
-                print("Montando arvore para cidade " + str(cidadeCorrente))
-                for linha in self.conjuntoCidadeCnefe:
+                print(t + ": montando arvore para cidade " + str(cidadeCorrente))
+
+                for linha in conjuntoCidadeCnefe:
                     preCepCnefe = str(int(linha[self.indexColCnefe["cep"]]) // 1000)
-                    #lprefcep = str(int(familia[self.indexColCadUnic["num_cep_logradouro_fam"]])/1000)
+                    # lprefcep = str(int(familia[self.indexColCadUnic["num_cep_logradouro_fam"]])/1000)
 
-                    if preCepCnefe in self.conjuntoCidadeCnefeDic:
-                        self.conjuntoCidadeCnefeDic[preCepCnefe].append(linha)
-                        self.quantidadeConjCnefe[preCepCnefe] = self.quantidadeConjCnefe[preCepCnefe] + 1
+                    if preCepCnefe in conjuntoCidadeCnefeDic:
+                        conjuntoCidadeCnefeDic[preCepCnefe].append(linha)
+                        quantidadeConjCnefe[preCepCnefe] = quantidadeConjCnefe[preCepCnefe] + 1
                     else:
-                        self.conjuntoCidadeCnefeDic[preCepCnefe] = [linha]
-                        self.quantidadeConjCnefe[preCepCnefe] = 1
-                print("comparando enderecos na cidade " + str(cidadeCorrente))
+                        conjuntoCidadeCnefeDic[preCepCnefe] = [linha]
+                        quantidadeConjCnefe[preCepCnefe] = 1
 
-            enderecoCadUnic = [familia[mascaraEnderecoCadUnic[0]], familia[mascaraEnderecoCadUnic[1]],
-                               familia[mascaraEnderecoCadUnic[2]], str(familia[mascaraEnderecoCadUnic[3]]),
-                               familia[mascaraEnderecoCadUnic[4]]
+                print(t + ": comparando enderecos na cidade " + str(cidadeCorrente))
+
+            enderecoCadUnic = [familia[self.indexCadUnic[0]], familia[self.indexCadUnic[1]],
+                               familia[self.indexCadUnic[2]], str(familia[self.indexCadUnic[3]]),
+                               familia[self.indexCadUnic[4]]
                                ]
             idfamilia = int(familia[self.indexColCadUnic["cod_familiar_fam"]])
             resultadosPar = (idfamilia, 0, 0.0)
-
-            preCepCad = str(int(familia[self.indexColCadUnic["num_cep_logradouro_fam"]])//1000)
-
+            preCepCad = str(int(familia[self.indexColCadUnic["num_cep_logradouro_fam"]]) // 1000)
             i = 0
-            diceCoef = 0
-            if preCepCad in self.conjuntoCidadeCnefeDic:
+            diceCoef = 0.0
 
-                while not(math.isclose(diceCoef, 1.0)) and i < self.quantidadeConjCnefe[preCepCad]:
-                #for endereco in self.conjuntoCidadeCnefeDic[preCepCad]:
-                    endereco = self.conjuntoCidadeCnefeDic[preCepCad][i]
+            if preCepCad in conjuntoCidadeCnefeDic:
 
-                    enderecoCnefe = [endereco[mascaraEnderecoCnefe[0]], endereco[mascaraEnderecoCnefe[1]],
-                                 endereco[mascaraEnderecoCnefe[2]], str(endereco[mascaraEnderecoCnefe[3]]),
-                                 endereco[mascaraEnderecoCnefe[4]]
-                                 ]
+                while not (math.isclose(diceCoef, 1.0)) and i < quantidadeConjCnefe[preCepCad]:
+                    # for endereco in self.conjuntoCidadeCnefeDic[preCepCad]:
+                    endereco = conjuntoCidadeCnefeDic[preCepCad][i]
+
+                    enderecoCnefe = [endereco[self.indexCnefe[0]], endereco[self.indexCnefe[1]],
+                                     endereco[self.indexCnefe[2]], str(endereco[self.indexCnefe[3]]),
+                                     endereco[self.indexCnefe[4]]
+                                     ]
 
                     idEndereco = int(endereco[self.indexColCnefe["cod_unico_endereco"]])
 
@@ -126,27 +162,39 @@ class JuncaoTools:
                     if diceCoef > resultadosPar[2]:
                         resultadosPar = (idfamilia, idEndereco, diceCoef)
 
-                    i = i+1
+                    i = i + 1
 
-            else:
-                arq2.write(str(idfamilia) + ";" + preCepCad + "\n")
-
-
-            resp = str(resultadosPar[0]) + "," + str(resultadosPar[1]) + "," + str(resultadosPar[2]) + "\n"
-            arq.write(resp)
-        arq.close()
-        arq2.close()
+            resp = [str(resultadosPar[0]), str(resultadosPar[1]), str(resultadosPar[2])]
+            self.bd.inseirdados(nomeSchemaResult, nomeTabelaResult, [resp])
 
 
+    def juntarTabelas(self, nomeSchemaCadUnic, tabelaCadUnic, nomeScehemaCnefe, tabelaCnefe):
+
+        nomeTabelaResult = "resultado_" + nomeSchemaCadUnic.split("_")[2] + "_" + tabelaCnefe
+        listaAtributos = ['cod_familiar_fam numeric', 'cod_unico_endereco integer', 'dice_coeficiente double precision']
+        self.bd.criartabela("public", nomeTabelaResult, listaAtributos, 1)
+        self.prepararDividirTarefa(nomeSchemaCadUnic,tabelaCadUnic,nomeScehemaCnefe,tabelaCnefe)
+        self.criarMascaraEnderecos()
+
+        threads = []
+        executor = concurrent.futures.ThreadPoolExecutor(max_workers=self.numThread, thread_name_prefix="Minion")
+        for i in range(self.numThread):
+            threads.append(executor.submit(self.compararTabelas, nomeScehemaCnefe, tabelaCnefe, i, "public", nomeTabelaResult))
+            #self.compararTabelas(nomeScehemaCnefe,tabelaCnefe, i,"public", nomeTabelaResult)
+            #print(threads[i])
+
+        executor.shutdown(wait=True)
+
+        #concurrent.futures.wait(threads, timeout=None, return_when=ALL_COMPLETED)
 
 
 
-j = JuncaoTools()
 
 
-ini = time.time()
-j.juncaoTabelas("cad_unic_2019", "base_cad_unic_2019_14", "cnefe_rr_14", "14_rr")
-fim = time.time()
-
-print("\n=========================================\n")
-print("Tempo: " + str(fim-ini))
+if __name__ == '__main__':
+    j = JuncaoTools(2)
+    ini = time.time()
+    j.juntarTabelas("cad_unic_2019", "rr10000", "cnefe_rr_14", "14_rr")
+    fim = time.time()
+    print("\n=========================================\n")
+    print("Tempo: " + str(fim - ini))

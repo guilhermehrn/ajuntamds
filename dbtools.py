@@ -135,7 +135,14 @@ class Dbtool:
         except (Exception, psycopg2.DatabaseError) as error:
             print(error)
 
-# p = Dbtool("localhost","5432","mds-cad-unico","postgres","")
+    def contarInstancias(self, nomeSchema, nomeTabela):
+        sql = "SELECT count(*) FROM " + nomeSchema + "." + '"' + nomeTabela + '"' + ";"
+        cur = self.conn.cursor()
+        cur.execute(sql)
+        rows = cur.fetchall()
+        return int(rows[0][0])
+
+p = Dbtool("localhost","5432","mds_cad_unic","postgres","2631")
 # tab = ["mgs as mg", "ibges as ib"]
 # col = ["cod_municipio", "cod_munic_ibge_5_fam"]
 # cod = ""
@@ -153,6 +160,5 @@ class Dbtool:
 # r = p.retornarColunasTypes("public","guilherme")
 # r = p.retornarColunasIndex("public","guilherme")
 # r = p.criarTabelaDeGrupos("cnefe_rr_14","grupo" ,"14_rr", "cod_municipio")
-
-
-# print(r)
+r = p.contarInstancias("public","guilherme")
+print(r)
