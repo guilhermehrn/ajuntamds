@@ -63,12 +63,12 @@ class JuncaoTools:
 
         resultadosPar = (1, 1, 0.0)
 
-        arq = open('saida2.csv', 'w')
+        arq = open('E:\documantos\saida2.csv', 'w')
         arq.write("cod_familiar_fam; cod_unico_endereco; Dice_coeficiente\n")
         arq.close()
 
-        arq = open('saida2.csv', 'a')
-        arq2 = open('log-erro.csv', 'w')
+        arq = open('E:\documantos\saida2.csv', 'a')
+        arq2 = open('E:\documantos\log-erro.csv', 'w')
         diceCoef=0.0
 
         for familia in self.conjuntoCadUnic:
@@ -145,7 +145,7 @@ j = JuncaoTools()
 
 
 ini = time.time()
-j.juncaoTabelas("cad_unic_2019", "base_cad_unic_2019_14", "cnefe_rr_14", "14_rr")
+j.juncaoTabelas("cad_unic_2019", "rr10000", "cnefe_rr_14", "14_rr")
 fim = time.time()
 
 print("\n=========================================\n")
