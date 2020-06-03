@@ -31,6 +31,6 @@ class Similaridade:
         return dice_coeff
 
 
-s = Similaridade()
-resp = s.dice_coefficient1("casa", "casal")
-print(resp)
+#s = Similaridade()
+#resp = s.dice_coefficient1("casa", "casal")
+#print(resp)

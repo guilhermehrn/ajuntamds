@@ -43,7 +43,7 @@ class Dbtool:
         try:
             if temQueDropar:
                 sql = "DROP TABLE IF EXISTS " + nomeSchema + '."' + nomeTabela + '"'
-                print(sql)
+                #print(sql)
                 cur = self.conn.cursor()
                 cur.execute(sql)
                 self.conn.commit()
@@ -162,5 +162,5 @@ p = Dbtool("localhost","5432","mds_cad_unic","postgres","2631")
 # r = p.retornarColunasTypes("public","guilherme")
 # r = p.retornarColunasIndex("public","guilherme")
 # r = p.criarTabelaDeGrupos("cnefe_rr_14","grupo" ,"14_rr", "cod_municipio")
-r = p.contarInstancias("public","guilherme")
-print(r)
+#r = p.contarInstancias("public","guilherme")
+#print(r)
