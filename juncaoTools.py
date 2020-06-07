@@ -50,7 +50,7 @@ class JuncaoTools:
         bd = Dbtool("localhost", "5432", "mds_cad_unic", "postgres", "2631")
         print("Buscando os dados do  cad unico no baco.")
 
-        self.conjuntoCadUnic = bd.selecionarTabela(nomeSchemaCadUnic, [tabelaCadUnic], ["*"], '', 10)
+        self.conjuntoCadUnic = bd.selecionarTabela(nomeSchemaCadUnic, [tabelaCadUnic], ["*"], '', 0)
 
         print("Buscando Indexadores.")
 
@@ -137,14 +137,16 @@ class JuncaoTools:
             idfamilia = int(familia[self.indexColCadUnic["cod_familiar_fam"]])
             resultadosPar = (idfamilia, 0, 0.0, 0)
             preCepCad = str(int(familia[self.indexColCadUnic["num_cep_logradouro_fam"]]) // 1000)
+            numEnderCad = familia[self.indexColCadUnic["num_logradouro_fam"]]
+            #print("OLHAE: ",numEnderCad)
             i = 0
             diceCoef = 0.0
 
             if preCepCad in conjuntoCidadeCnefeDic:
-
-                while not (math.isclose(diceCoef, 1.0)) and i < quantidadeConjCnefe[preCepCad]:
+                while not (math.isclose(diceCoef, 1.0) and numEnderCad == numEndCnefe) and i < quantidadeConjCnefe[preCepCad]:
                     # for endereco in self.conjuntoCidadeCnefeDic[preCepCad]:
                     endereco = conjuntoCidadeCnefeDic[preCepCad][i]
+                    numEndCnefe = endereco[self.indexColCnefe["num_endereco"]]
 
                     endcf = self.formEndeCnefe
                     enderecoCnefe = [endereco[self.indexColCnefe[endcf[0]]], endereco[self.indexColCnefe[endcf[1]]], endereco[self.indexColCnefe[endcf[2]]]
@@ -152,15 +154,30 @@ class JuncaoTools:
 
                     idEndereco = int(endereco[self.indexColCnefe["cod_unico_endereco"]])
 
-                    diceCoef = self.similar.dice_coefficient2(','.join(enderecoCadUnic), ','.join(enderecoCnefe))
+                    diceCoef = self.similar.dice_coefficient1(','.join(enderecoCadUnic), ','.join(enderecoCnefe))
 
                     if diceCoef >= resultadosPar[2]:
+                        if diceCoef >= 0.95 and numEnderCad == numEndCnefe and (numEnderCad not in [None, 0]) and (numEndCnefe not in [None, 0]):
+                            resultadosPar = (idfamilia, idEndereco, diceCoef, 5)
 
-                        resultadosPar = (idfamilia, idEndereco, diceCoef)
+                        if diceCoef >= 0.95 and (numEnderCad in [None, 0]) and (numEndCnefe in [None, 0]):
+                            resultadosPar = (idfamilia, idEndereco, diceCoef, 4)
+
+                        if diceCoef >= 0.95 and numEnderCad != numEndCnefe and (numEnderCad not in [None, 0]) and (numEndCnefe not in [None, 0]):
+                            resultadosPar = (idfamilia, idEndereco, diceCoef, 3)
+
+                        if diceCoef < 0.95 and numEnderCad == numEndCnefe and (numEnderCad not in [None, 0]) and (numEndCnefe not in [None, 0]) :
+                            resultadosPar = (idfamilia, idEndereco, diceCoef, 2)
+
+                        if diceCoef < 0.95 and (numEnderCad in [None, 0]) and (numEndCnefe in [None, 0]):
+                            resultadosPar = (idfamilia, idEndereco, diceCoef, 1)
+
+                        if diceCoef < 0.95 and numEnderCad != numEndCnefe and (numEnderCad not in [None, 0]) and (numEndCnefe not in [None, 0]):
+                            resultadosPar = (idfamilia, idEndereco, diceCoef, 0)
 
                     i = i + 1
 
-            resp = [str(resultadosPar[0]), str(resultadosPar[1]), str(resultadosPar[2])]
+            resp = [str(resultadosPar[0]), str(resultadosPar[1]), str(resultadosPar[2]), str(resultadosPar[3])]
             # self.respostasThreads[faixaCadUnico].append(resultadosPar)
             dbaseth.inseirdados(nomeSchemaResult, nomeTabelaResult, [resp])
 
@@ -172,7 +189,7 @@ class JuncaoTools:
     def juntarTabelas(self, nomeSchemaCadUnic, tabelaCadUnic, nomeScehemaCnefe, tabelaCnefe):
         bd = Dbtool("localhost", "5432", "mds_cad_unic", "postgres", "2631")
         nomeTabelaResult = "resultado_" + nomeSchemaCadUnic.split("_")[2] + "_" + tabelaCnefe
-        listaAtributos = ['cod_familiar_fam numeric', 'cod_unico_endereco integer', 'dice_coeficiente double precision']
+        listaAtributos = ['cod_familiar_fam numeric', 'cod_unico_endereco integer', 'dice_coeficiente double precision', 'nivel_precisao integer']
         bd.criartabela("public", nomeTabelaResult, listaAtributos, 1)
         self.prepararDividirTarefa(nomeSchemaCadUnic, tabelaCadUnic, nomeScehemaCnefe, tabelaCnefe)
         #self.criarMascaraEnderecos()
@@ -199,9 +216,10 @@ class JuncaoTools:
 
 
 if __name__ == '__main__':
-    j = JuncaoTools(1)
+    j = JuncaoTools(8)
     ini = time.time()
-    j.juntarTabelas("cad_unic_2019", "rr10000", "cnefe_rr_14", "14_rr")
+    #j.juntarTabelas("cad_unic_2019", "rr10000", "cnefe_rr_14", "14_rr")
+    j.juntarTabelas("cad_unic_2019", "base_cad_unic_2019_14", "cnefe_rr_14", "14_rr")
     fim = time.time()
     print("\n=========================================\n")
     print("Tempo: " + str(fim - ini))
