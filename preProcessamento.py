@@ -40,6 +40,6 @@ class PreProcessamento:
 
 
 
-#p = PreProcessamento("localhost", "5432", "mds-cad-unico", "postgres", "2631")
-#p.preProcessarBaseCnefe("cnefe_rr_14", "14_rr")
+p = PreProcessamento("localhost", "5432", "mds_cad_unic", "postgres", "2631")
+p.preProcessarBaseCnefe("cnefe_sp_35", "35_sp")
 #p.preProcessarBaseCadUnico("cad_unic_2019","base_cad_unic_2019")

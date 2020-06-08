@@ -50,7 +50,7 @@ class JuncaoTools:
         bd = Dbtool("localhost", "5432", "mds_cad_unic", "postgres", "2631")
         print("Buscando os dados do  cad unico no baco.")
 
-        self.conjuntoCadUnic = bd.selecionarTabela(nomeSchemaCadUnic, [tabelaCadUnic], ["*"], '', 0)
+        self.conjuntoCadUnic = bd.selecionarTabela(nomeSchemaCadUnic, [tabelaCadUnic], ["*"], '', 100000)
 
         print("Buscando Indexadores.")
 
@@ -84,6 +84,7 @@ class JuncaoTools:
             if aux == self.numThread:
                 aux = 0
 
+        self.conjuntoCadUnic = 0
     # def criarMascaraEnderecos(self):
     #
     #     for i in range(len(self.mascaraEnderecoCadUnic)):
@@ -201,6 +202,7 @@ class JuncaoTools:
             threads.append(Process(target=self.compararTabelas, name="deus",
                                    args=(nomeScehemaCnefe, tabelaCnefe, i, "public", nomeTabelaResult)))
 
+
         for i in range(self.numThread):
             threads[i].start()
             # threads[i].join()
@@ -219,7 +221,7 @@ if __name__ == '__main__':
     j = JuncaoTools(8)
     ini = time.time()
     #j.juntarTabelas("cad_unic_2019", "rr10000", "cnefe_rr_14", "14_rr")
-    j.juntarTabelas("cad_unic_2019", "base_cad_unic_2019_14", "cnefe_rr_14", "14_rr")
+    j.juntarTabelas("cad_unic_2019", "base_cad_unic_2019_35", "cnefe_sp_35", "35_sp")
     fim = time.time()
     print("\n=========================================\n")
     print("Tempo: " + str(fim - ini))
