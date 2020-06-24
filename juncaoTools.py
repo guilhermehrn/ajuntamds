@@ -29,14 +29,22 @@ class JuncaoTools:
         self.indexCadUnic = []
         self.indexCnefe = []
 
-        self.formEndeCadunic = ["nom_tit_logradouro_fam",
+        self.formEndeCadunic = ["cod_familiar_fam",
+                                "cod_munic_ibge_5_fam",
+                                "nom_tit_logradouro_fam",
                                 "nom_logradouro_fam",
-                                "nom_localidade_fam"]
+                                "nom_localidade_fam",
+                                "num_logradouro_fam",
+                                "num_cep_logradouro_fam",
+                                ]
         # "cod_munic_ibge_5_fam","cod_munic_ibge_2_fam","des_complemento_fam"
 
-        self.formEndeCnefe = ["nom_titulo_seglogr",
+        self.formEndeCnefe = ["cod_unico_endereco",
+                              "nom_titulo_seglogr",
                               "nom_seglogr",
-                              "dsc_localidade"]
+                              "dsc_localidade",
+                              "num_endereco",
+                              "cep"]
 
         # "dsc_modificador","cod_municipio","cod_uf"
 
@@ -50,15 +58,15 @@ class JuncaoTools:
         bd = Dbtool("localhost", "5432", "mds_cad_unic", "postgres", "2631")
         print("Buscando os dados do  cad unico no baco.")
 
-        self.conjuntoCadUnic = bd.selecionarTabela(nomeSchemaCadUnic, [tabelaCadUnic], ["*"], '', 100000)
+        self.conjuntoCadUnic = bd.selecionarTabela(nomeSchemaCadUnic, [tabelaCadUnic], self.formEndeCadunic, '', 0)
 
         print("Buscando Indexadores.")
 
-        self.indexColCadUnic = bd.retornarColunasIndex(nomeSchemaCadUnic, tabelaCadUnic)
-        self.tiposColCadUnic = bd.retornarColunasTypes(nomeSchemaCadUnic, tabelaCadUnic)
+        #self.indexColCadUnic = bd.retornarColunasIndex(nomeSchemaCadUnic, tabelaCadUnic)
+        #self.tiposColCadUnic = bd.retornarColunasTypes(nomeSchemaCadUnic, tabelaCadUnic)
 
-        self.indexColCnefe = bd.retornarColunasIndex(nomeScehemaCnefe, tabelaCnefe)
-        self.tiposColCnefe = bd.retornarColunasTypes(nomeScehemaCnefe, tabelaCnefe)
+        #self.indexColCnefe = bd.retornarColunasIndex(nomeScehemaCnefe, tabelaCnefe)
+        #self.tiposColCnefe = bd.retornarColunasTypes(nomeScehemaCnefe, tabelaCnefe)
 
         print("Criando grupos de cidades.")
         nometabelagrupoAux = tabelaCadUnic + "aux"
@@ -69,13 +77,13 @@ class JuncaoTools:
             bd.selecionarTabela(nomeSchemaCadUnic, [nometabelagrupoAux], ["*"], '', 0))
         self.codCidadesOrdenadaslist = list(self.numInstancidadesCadUnicDic.keys())
 
-        self.numTotalInstancias = bd.contarInstancias(nomeSchemaCadUnic, tabelaCadUnic)
+        #self.numTotalInstancias = bd.contarInstancias(nomeSchemaCadUnic, tabelaCadUnic)
 
-        self.numInstanciasCadUnicPorThread = self.numTotalInstancias // self.numThread
+        #self.numInstanciasCadUnicPorThread = self.numTotalInstancias // self.numThread
         aux = 0
 
         for i in range(self.numThread):
-            self.respostasThreads.append([])
+            #self.respostasThreads.append([])
             self.tarefasParaTheads.append([])
 
         for row in self.conjuntoCadUnic:
@@ -84,7 +92,7 @@ class JuncaoTools:
             if aux == self.numThread:
                 aux = 0
 
-        self.conjuntoCadUnic = 0
+        self.conjuntoCadUnic = None
     # def criarMascaraEnderecos(self):
     #
     #     for i in range(len(self.mascaraEnderecoCadUnic)):
@@ -102,26 +110,25 @@ class JuncaoTools:
         diceCoef = 0.0
 
         dbaseth = Dbtool("localhost", "5432", "mds_cad_unic", "postgres", "2631")
-        # print("MEU PAI E: ", os.getppid())
+        print("MEU PAI E: ", os.getppid())
 
         for familia in self.tarefasParaTheads[faixaCadUnico]:
 
-            if int(familia[5]) != cidadeCorrente:
+            if int(familia[1]) != cidadeCorrente:
                 t = str(os.getpid())
 
-                cidadeCorrente = int(familia[5])
+                cidadeCorrente = int(familia[1])
                 # print(t + ": buscando a Cidade " + str(cidadeCorrente))
                 nometabelaCnefeCorrente = tabelaCnefe + "_" + str(cidadeCorrente)
 
-                conjuntoCidadeCnefe = dbaseth.selecionarTabela(nomeScehemaCnefe, [nometabelaCnefeCorrente], ["*"], '',
-                                                               0)
+                conjuntoCidadeCnefe = dbaseth.selecionarTabela(nomeScehemaCnefe, [nometabelaCnefeCorrente], self.formEndeCnefe, '', 0)
                 conjuntoCidadeCnefeDic = {}
                 quantidadeConjCnefe = {}
 
                 # print(t + ": montando arvore para cidade " + str(cidadeCorrente))
 
                 for linha in conjuntoCidadeCnefe:
-                    preCepCnefe = str(int(linha[self.indexColCnefe["cep"]]) // 1000)
+                    preCepCnefe = str(int(linha[5]) // 1000)
                     # lprefcep = str(int(familia[self.indexColCadUnic["num_cep_logradouro_fam"]])/1000)
 
                     if preCepCnefe in conjuntoCidadeCnefeDic:
@@ -131,14 +138,15 @@ class JuncaoTools:
                         conjuntoCidadeCnefeDic[preCepCnefe] = [linha]
                         quantidadeConjCnefe[preCepCnefe] = 1
 
+                conjuntoCidadeCnefe = None
+
                 # print(t + ": comparando enderecos na cidade " + str(cidadeCorrente))
-            endc = self.formEndeCadunic
-            enderecoCadUnic = [familia[self.indexColCadUnic[endc[0]]],familia[self.indexColCadUnic[endc[1]]], familia[self.indexColCadUnic[endc[2]]]
-                               ]
-            idfamilia = int(familia[self.indexColCadUnic["cod_familiar_fam"]])
+
+            enderecoCadUnic = [familia[2], familia[3], familia[4]]
+            idfamilia = int(familia[0])
             resultadosPar = (idfamilia, 0, 0.0, 0)
-            preCepCad = str(int(familia[self.indexColCadUnic["num_cep_logradouro_fam"]]) // 1000)
-            numEnderCad = familia[self.indexColCadUnic["num_logradouro_fam"]]
+            preCepCad = str(int(familia[6]) // 1000)
+            numEnderCad = familia[5]
             #print("OLHAE: ",numEnderCad)
             i = 0
             diceCoef = 0.0
@@ -147,16 +155,15 @@ class JuncaoTools:
                 while not (math.isclose(diceCoef, 1.0) and numEnderCad == numEndCnefe) and i < quantidadeConjCnefe[preCepCad]:
                     # for endereco in self.conjuntoCidadeCnefeDic[preCepCad]:
                     endereco = conjuntoCidadeCnefeDic[preCepCad][i]
-                    numEndCnefe = endereco[self.indexColCnefe["num_endereco"]]
+                    numEndCnefe = endereco[4]
 
-                    endcf = self.formEndeCnefe
-                    enderecoCnefe = [endereco[self.indexColCnefe[endcf[0]]], endereco[self.indexColCnefe[endcf[1]]], endereco[self.indexColCnefe[endcf[2]]]
-                                     ]
+                    #endcf = self.formEndeCnefe
+                    enderecoCnefe = [endereco[1], endereco[2], endereco[3]]
 
-                    idEndereco = int(endereco[self.indexColCnefe["cod_unico_endereco"]])
+                    idEndereco = int(endereco[0])
 
                     diceCoef = self.similar.dice_coefficient1(','.join(enderecoCadUnic), ','.join(enderecoCnefe))
-
+                    #print (numEndCnefe, numEnderCad)
                     if diceCoef >= resultadosPar[2]:
                         if diceCoef >= 0.95 and numEnderCad == numEndCnefe and (numEnderCad not in [None, 0]) and (numEndCnefe not in [None, 0]):
                             resultadosPar = (idfamilia, idEndereco, diceCoef, 5)
