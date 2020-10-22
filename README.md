@@ -14,10 +14,14 @@ Para o funcionamento do programa deve-se atentar aos seguintes requisitos:
  
  Obs.: A quantidade de memoria e de cores de processador vai influenciar diretamente a quantidade de Theads que o programa irar executar o programa. Portanto quanto maior a quantidade de threads, mais núcleos de processador e memoria RAM irá exigir, e mais rapido o programa tende a processar os dados.
 
+## Carregando a base de dados
+
 ## Execução do Programa
+
+Basicamente o programa funciona de duas etapas: (1) Pré-processamento das bases de dados e (2) A juncão das bases de dados. Sendo que a primeira etapa só precisa ser feita uma unica vez, quando quando as bases forem utilizadas pela primeira vez.
 
 ### Pre-Processamento das bases de dados
 
 ### Junção das Bases de dados
 
-#### CAlculando a quantidade de Theads
+#### Calculando a quantidade de Theads
