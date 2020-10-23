@@ -1,19 +1,26 @@
 from dbtools import Dbtool
+import json
+
 
 
 class PreProcessamento:
-    def __init__(self, host, porta, dbase, user, password):
-        self.host = host
-        self.port = porta
-        self.db = dbase
-        self.user = user
-        self.password = password
+    """Classe usada no preprocessamento das bases de dados.
+    Ela preprocessa um estado do Brasil por vez.
+    Deve ser rodada de toda a vez que a base for usada pela primeira vez
+    """
 
-        self.db = Dbtool(self.host, self.port, self.db, self.user, self.password)
+    def __init__(self):
+
+        with open("config.json", "r") as json_file:
+            dadosConexao = json.load(json_file)
+
+        self.db = Dbtool(dadosConexao["host"], dadosConexao["port"], dadosConexao["base"], dadosConexao["user"], dadosConexao["password"])
 
     def preProcessarBaseCnefe(self, nomeSchema, nomeTabela):
         nomeTabGrupoCidade = "grupo_cidades_" + nomeTabela
         capoAgrupamento = "cod_municipio"
+
+        self.db.deletarDadoDaTabelaControle(nomeSchema, nomeTabela)
 
         self.db.criarTabelaDeGrupos(nomeSchema, nomeTabGrupoCidade, nomeTabela, capoAgrupamento, 1)
 
@@ -24,10 +31,14 @@ class PreProcessamento:
 
             self.db.criarVewDeUmaTabela(nomeSchema, nometabelaCidade, nomeTabela, capoAgrupamento + " = " + str(cidade[0]),
                                         '')
+        aux = ["'" + nomeSchema + "'", "'" + nomeTabela + "'"]
+        self.db.inseirdados("public","tabela_controle", [aux])
 
-    def preProcessarBaseCadUnico(self, nomeSchema, nomeTabela,):
+    def preProcessarBaseCadUnico(self, nomeSchema, nomeTabela):
         nomeTabGrupoEstado = "grupo_estado_" + nomeTabela
         capoAgrupamento = "cod_munic_ibge_2_fam"
+
+        self.db.deletarDadoDaTabelaControle(nomeSchema, nomeTabela)
 
         self.db.criarTabelaDeGrupos(nomeSchema, nomeTabGrupoEstado, nomeTabela, capoAgrupamento, 1)
         tabGrupoEstados = self.db.selecionarTabela(nomeSchema, [nomeTabGrupoEstado], ["*"], "", 0)
@@ -38,8 +49,35 @@ class PreProcessamento:
             self.db.criarVewDeUmaTabela(nomeSchema, nometabelaEstado, nomeTabela, capoAgrupamento + " = " + str(estado[0]),
                                         'ORDER BY cod_munic_ibge_5_fam ASC')
 
+        aux = ["'" + nomeSchema + "'", "'" + nomeTabela + "'"]
+        self.db.inseirdados("public", "tabela_controle", [aux])
+
+    def testarseProcessado(self, nomeSchema, nomeTabela):
+        self.db.criarTabelaControle();
+
+        res = self.db.selecionarTabela("public", ["tabela_controle"], ["*"], "nomesquema= " + "'" + nomeSchema + "'" + " AND" + " nometabela=" + "'" + nomeTabela + "'", 0)
+
+        if not res:
+            return False
+        else:
+            return True
 
 
-p = PreProcessamento("localhost", "5432", "mds_cad_unic", "postgres", "2631")
-p.preProcessarBaseCnefe("cnefe_sp_35", "35_sp")
+
+
+
+
+
+
+
+
+
+
+#p = PreProcessamento("localhost", "5432", "mds_cad_unic", "postgres", "2631")
+#p.preProcessarBaseCnefe("cnefe_ac_12", "12_ac")
+#print (p.testarseProcessado("cnefe_ac_12", "12_ac"))
+
+#p.preProcessarBaseCnefe("cnefe_pr_41", "41_pr")
 #p.preProcessarBaseCadUnico("cad_unic_2019","base_cad_unic_2019")
+
+

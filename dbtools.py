@@ -30,7 +30,7 @@ class Dbtool:
             sql = sql + " " + "limit " + str(limitlinhas)
         sql = sql + ";"
 
-        #print(sql)
+        print(sql)
         cur = self.conn.cursor()
         cur.execute(sql)
         # print(cur.description[0][0], cur.description[0][1] , cur.description[1][0], cur.description[1][1])
@@ -141,6 +141,27 @@ class Dbtool:
         cur.execute(sql)
         rows = cur.fetchall()
         return int(rows[0][0])
+
+    def criarSquema(self, nomeSchema):
+        sql = "CREATE SCHEMA IF NOT EXISTS" + nomeSchema
+        cur = self.conn.cursor()
+        cur.execute(sql)
+        rows = cur.fetchall()
+
+    def criarTabelaControle(self):
+
+        sql = 'CREATE TABLE IF NOT EXISTS tabela_controle (nomesquema VARCHAR (255), nometabela VARCHAR (255))'
+        cur = self.conn.cursor()
+        cur.execute(sql)
+        self.conn.commit()
+
+    def deletarDadoDaTabelaControle(self, nomeSchema, nomeTabela):
+
+        sql = "DELETE FROM tabela_controle WHERE nomesquema =" + "'" + nomeSchema + "'" + " AND " + "nometabela =" + "'" + nomeTabela + "';"
+        cur = self.conn.cursor()
+        cur.execute(sql)
+        self.conn.commit()
+
 
 p = Dbtool("localhost","5432","mds_cad_unic","postgres","2631")
 

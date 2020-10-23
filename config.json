@@ -1,0 +1,7 @@
+{
+  "host": "localhost",
+  "port": "5432",
+  "base": "mds_cad_unic",
+  "user": "postgres",
+  "password": "2631"
+}

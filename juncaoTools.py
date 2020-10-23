@@ -1,19 +1,18 @@
 import math
-import time
+
 
 from dbtools import Dbtool
 from similaridade import Similaridade
 import concurrent.futures
 from multiprocessing import Process
 import os
-from concurrent.futures import ALL_COMPLETED
-import threading
+import json
 
-
-# noinspection DuplicatedCode
 class JuncaoTools:
+    
+    """Classe que faz a junção das tabelas do banco de dados."""
+
     def __init__(self, numtheads):
-        # self.bd = Dbtool("localhost", "5432", "mds_cad_unic", "postgres", "2631")
         self.similar = Similaridade()
         self.indexColCadUnic = {}
         self.tiposColCadUnic = {}
@@ -37,7 +36,7 @@ class JuncaoTools:
                                 "num_logradouro_fam",
                                 "num_cep_logradouro_fam",
                                 ]
-        # "cod_munic_ibge_5_fam","cod_munic_ibge_2_fam","des_complemento_fam"
+
 
         self.formEndeCnefe = ["cod_unico_endereco",
                               "nom_titulo_seglogr",
@@ -46,7 +45,6 @@ class JuncaoTools:
                               "num_endereco",
                               "cep"]
 
-        # "dsc_modificador","cod_municipio","cod_uf"
 
     def printarLista(self, lista):
         print("==>> Resutados finais :")
@@ -55,18 +53,17 @@ class JuncaoTools:
 
     def prepararDividirTarefa(self, nomeSchemaCadUnic, tabelaCadUnic, nomeScehemaCnefe, tabelaCnefe):
 
-        bd = Dbtool("localhost", "5432", "mds_cad_unic", "postgres", "2631")
+        with open("config.json", "r") as json_file:
+            dadosConexao = json.load(json_file)
+
+        bd = Dbtool(dadosConexao["host"], dadosConexao["port"], dadosConexao["base"], dadosConexao["user"], dadosConexao["password"])
+
         print("Buscando os dados do  cad unico no baco.")
 
         self.conjuntoCadUnic = bd.selecionarTabela(nomeSchemaCadUnic, [tabelaCadUnic], self.formEndeCadunic, '', 0)
 
         print("Buscando Indexadores.")
 
-        #self.indexColCadUnic = bd.retornarColunasIndex(nomeSchemaCadUnic, tabelaCadUnic)
-        #self.tiposColCadUnic = bd.retornarColunasTypes(nomeSchemaCadUnic, tabelaCadUnic)
-
-        #self.indexColCnefe = bd.retornarColunasIndex(nomeScehemaCnefe, tabelaCnefe)
-        #self.tiposColCnefe = bd.retornarColunasTypes(nomeScehemaCnefe, tabelaCnefe)
 
         print("Criando grupos de cidades.")
         nometabelagrupoAux = tabelaCadUnic + "aux"
@@ -77,9 +74,6 @@ class JuncaoTools:
             bd.selecionarTabela(nomeSchemaCadUnic, [nometabelagrupoAux], ["*"], '', 0))
         self.codCidadesOrdenadaslist = list(self.numInstancidadesCadUnicDic.keys())
 
-        #self.numTotalInstancias = bd.contarInstancias(nomeSchemaCadUnic, tabelaCadUnic)
-
-        #self.numInstanciasCadUnicPorThread = self.numTotalInstancias // self.numThread
         aux = 0
 
         for i in range(self.numThread):
@@ -93,13 +87,7 @@ class JuncaoTools:
                 aux = 0
 
         self.conjuntoCadUnic = None
-    # def criarMascaraEnderecos(self):
-    #
-    #     for i in range(len(self.mascaraEnderecoCadUnic)):
-    #         cad = self.mascaraEnderecoCadUnic[i]
-    #         cenef = self.mascaraEnderecoCnefe[i]
-    #         self.indexCadUnic.append(self.indexColCadUnic[cad])
-    #         self.indexCnefe.append(self.indexColCnefe[cenef])
+
 
     def compararTabelas(self, nomeScehemaCnefe, tabelaCnefe, faixaCadUnico, nomeSchemaResult, nomeTabelaResult):
 
@@ -109,8 +97,14 @@ class JuncaoTools:
         # resultadosPar = (1, 1, 0.0)
         diceCoef = 0.0
 
-        dbaseth = Dbtool("localhost", "5432", "mds_cad_unic", "postgres", "2631")
-        print("MEU PAI E: ", os.getppid())
+        with open("config.json", "r") as json_file:
+            dadosConexao = json.load(json_file)
+
+        dbaseth = Dbtool(dadosConexao["host"], dadosConexao["port"], dadosConexao["base"], dadosConexao["user"],
+                    dadosConexao["password"])
+
+        #dbaseth = Dbtool("localhost", "5432", "mds_cad_unic", "postgres", "2631")
+       # print("MEU PAI E: ", os.getppid())
 
         for familia in self.tarefasParaTheads[faixaCadUnico]:
 
@@ -145,9 +139,13 @@ class JuncaoTools:
             enderecoCadUnic = [familia[2], familia[3], familia[4]]
             idfamilia = int(familia[0])
             resultadosPar = (idfamilia, 0, 0.0, 0)
-            preCepCad = str(int(familia[6]) // 1000)
+
+            if familia[6] == None:
+                preCepCad = str(int(0) // 1000)
+            else:
+                preCepCad = str(int(familia[6]) // 1000)
             numEnderCad = familia[5]
-            #print("OLHAE: ",numEnderCad)
+
             i = 0
             diceCoef = 0.0
 
@@ -190,17 +188,32 @@ class JuncaoTools:
             dbaseth.inseirdados(nomeSchemaResult, nomeTabelaResult, [resp])
 
     def armazenarRespostas(self, nomeSchema, tabelaResultado):
-        bd = Dbtool("localhost", "5432", "mds_cad_unic", "postgres", "2631")
+
+        with open("config.json", "r") as json_file:
+            dadosConexao = json.load(json_file)
+
+        bd = Dbtool(dadosConexao["host"], dadosConexao["port"], dadosConexao["base"], dadosConexao["user"], dadosConexao["password"])
+
+        #bd = Dbtool("localhost", "5432", "mds_cad_unic", "postgres", "2631")
         for item in self.respostasThreads:
             bd.inseirdados(nomeSchema, tabelaResultado, item)
 
     def juntarTabelas(self, nomeSchemaCadUnic, tabelaCadUnic, nomeScehemaCnefe, tabelaCnefe):
-        bd = Dbtool("localhost", "5432", "mds_cad_unic", "postgres", "2631")
+
+        with open("config.json", "r") as json_file:
+            dadosConexao = json.load(json_file)
+
+        bd = Dbtool(dadosConexao["host"], dadosConexao["port"], dadosConexao["base"], dadosConexao["user"], dadosConexao["password"])
+
+        #bd = Dbtool("localhost", "5432", "mds_cad_unic", "postgres", "2631")
         nomeTabelaResult = "resultado_" + nomeSchemaCadUnic.split("_")[2] + "_" + tabelaCnefe
         listaAtributos = ['cod_familiar_fam numeric', 'cod_unico_endereco integer', 'dice_coeficiente double precision', 'nivel_precisao integer']
         bd.criartabela("public", nomeTabelaResult, listaAtributos, 1)
+
         self.prepararDividirTarefa(nomeSchemaCadUnic, tabelaCadUnic, nomeScehemaCnefe, tabelaCnefe)
         #self.criarMascaraEnderecos()
+
+       ## aqui eu to começando a criar o processos no sistema para dar inicio ao processamento paralelo
         print("Criando processos =>\n")
 
         threads = []
@@ -224,11 +237,4 @@ class JuncaoTools:
     # concurrent.futures.wait(threads, timeout=None, return_when=ALL_COMPLETED)
 
 
-if __name__ == '__main__':
-    j = JuncaoTools(8)
-    ini = time.time()
-    #j.juntarTabelas("cad_unic_2019", "rr10000", "cnefe_rr_14", "14_rr")
-    j.juntarTabelas("cad_unic_2019", "base_cad_unic_2019_35", "cnefe_sp_35", "35_sp")
-    fim = time.time()
-    print("\n=========================================\n")
-    print("Tempo: " + str(fim - ini))
+
