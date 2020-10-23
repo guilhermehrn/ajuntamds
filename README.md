@@ -16,6 +16,8 @@ Para o funcionamento do programa deve-se atentar aos seguintes requisitos:
 
 ## Carregando a base de dados
 
+## Configuração do programa
+
 ## Execução do Programa
 
 Basicamente o programa funciona de duas etapas: (1) Pré-processamento das bases de dados e (2) A juncão das bases de dados. Sendo que a primeira etapa só precisa ser feita uma unica vez, quando quando as bases forem utilizadas pela primeira vez.
