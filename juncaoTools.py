@@ -1,6 +1,4 @@
 import math
-
-
 from dbtools import Dbtool
 from similaridade import Similaridade
 import concurrent.futures
@@ -8,8 +6,8 @@ from multiprocessing import Process
 import os
 import json
 
+
 class JuncaoTools:
-    
     """Classe que faz a junção das tabelas do banco de dados."""
 
     def __init__(self, numtheads):
@@ -37,14 +35,12 @@ class JuncaoTools:
                                 "num_cep_logradouro_fam",
                                 ]
 
-
         self.formEndeCnefe = ["cod_unico_endereco",
                               "nom_titulo_seglogr",
                               "nom_seglogr",
                               "dsc_localidade",
                               "num_endereco",
                               "cep"]
-
 
     def printarLista(self, lista):
         print("==>> Resutados finais :")
@@ -56,16 +52,16 @@ class JuncaoTools:
         with open("config.json", "r") as json_file:
             dadosConexao = json.load(json_file)
 
-        bd = Dbtool(dadosConexao["host"], dadosConexao["port"], dadosConexao["base"], dadosConexao["user"], dadosConexao["password"])
+        bd = Dbtool(dadosConexao["host"], dadosConexao["port"], dadosConexao["base"], dadosConexao["user"],
+                    dadosConexao["password"])
 
-        print("Buscando os dados do  cad unico no baco.")
+        print("Buscando os dados do cadastro unico no baco.")
 
         self.conjuntoCadUnic = bd.selecionarTabela(nomeSchemaCadUnic, [tabelaCadUnic], self.formEndeCadunic, '', 0)
 
-        print("Buscando Indexadores.")
+        print("Buscando Indexadores ")
+        print("Criando grupos de cidades")
 
-
-        print("Criando grupos de cidades.")
         nometabelagrupoAux = tabelaCadUnic + "aux"
 
         bd.criarTabelaDeGrupos(nomeSchemaCadUnic, nometabelagrupoAux, tabelaCadUnic, "cod_munic_ibge_5_fam", 1)
@@ -77,7 +73,7 @@ class JuncaoTools:
         aux = 0
 
         for i in range(self.numThread):
-            #self.respostasThreads.append([])
+            # self.respostasThreads.append([])
             self.tarefasParaTheads.append([])
 
         for row in self.conjuntoCadUnic:
@@ -88,23 +84,16 @@ class JuncaoTools:
 
         self.conjuntoCadUnic = None
 
-
     def compararTabelas(self, nomeScehemaCnefe, tabelaCnefe, faixaCadUnico, nomeSchemaResult, nomeTabelaResult):
 
         cidadeCorrente = 0
-
-        # conjuntoCidadeCnefe = []
-        # resultadosPar = (1, 1, 0.0)
         diceCoef = 0.0
 
         with open("config.json", "r") as json_file:
             dadosConexao = json.load(json_file)
 
         dbaseth = Dbtool(dadosConexao["host"], dadosConexao["port"], dadosConexao["base"], dadosConexao["user"],
-                    dadosConexao["password"])
-
-        #dbaseth = Dbtool("localhost", "5432", "mds_cad_unic", "postgres", "2631")
-       # print("MEU PAI E: ", os.getppid())
+                         dadosConexao["password"])
 
         for familia in self.tarefasParaTheads[faixaCadUnico]:
 
@@ -115,11 +104,10 @@ class JuncaoTools:
                 # print(t + ": buscando a Cidade " + str(cidadeCorrente))
                 nometabelaCnefeCorrente = tabelaCnefe + "_" + str(cidadeCorrente)
 
-                conjuntoCidadeCnefe = dbaseth.selecionarTabela(nomeScehemaCnefe, [nometabelaCnefeCorrente], self.formEndeCnefe, '', 0)
+                conjuntoCidadeCnefe = dbaseth.selecionarTabela(nomeScehemaCnefe, [nometabelaCnefeCorrente],
+                                                               self.formEndeCnefe, '', 0)
                 conjuntoCidadeCnefeDic = {}
                 quantidadeConjCnefe = {}
-
-                # print(t + ": montando arvore para cidade " + str(cidadeCorrente))
 
                 for linha in conjuntoCidadeCnefe:
                     preCepCnefe = str(int(linha[5]) // 1000)
@@ -150,35 +138,40 @@ class JuncaoTools:
             diceCoef = 0.0
 
             if preCepCad in conjuntoCidadeCnefeDic:
-                while not (math.isclose(diceCoef, 1.0) and numEnderCad == numEndCnefe) and i < quantidadeConjCnefe[preCepCad]:
+                while not (math.isclose(diceCoef, 1.0) and numEnderCad == numEndCnefe) and i < quantidadeConjCnefe[
+                    preCepCad]:
                     # for endereco in self.conjuntoCidadeCnefeDic[preCepCad]:
                     endereco = conjuntoCidadeCnefeDic[preCepCad][i]
                     numEndCnefe = endereco[4]
 
-                    #endcf = self.formEndeCnefe
+                    # endcf = self.formEndeCnefe
                     enderecoCnefe = [endereco[1], endereco[2], endereco[3]]
 
                     idEndereco = int(endereco[0])
 
                     diceCoef = self.similar.dice_coefficient1(','.join(enderecoCadUnic), ','.join(enderecoCnefe))
-                    #print (numEndCnefe, numEnderCad)
+
                     if diceCoef >= resultadosPar[2]:
-                        if diceCoef >= 0.95 and numEnderCad == numEndCnefe and (numEnderCad not in [None, 0]) and (numEndCnefe not in [None, 0]):
+                        if diceCoef >= 0.95 and numEnderCad == numEndCnefe and (numEnderCad not in [None, 0]) and (
+                                numEndCnefe not in [None, 0]):
                             resultadosPar = (idfamilia, idEndereco, diceCoef, 5)
 
                         if diceCoef >= 0.95 and (numEnderCad in [None, 0]) and (numEndCnefe in [None, 0]):
                             resultadosPar = (idfamilia, idEndereco, diceCoef, 4)
 
-                        if diceCoef >= 0.95 and numEnderCad != numEndCnefe and (numEnderCad not in [None, 0]) and (numEndCnefe not in [None, 0]):
+                        if diceCoef >= 0.95 and numEnderCad != numEndCnefe and (numEnderCad not in [None, 0]) and (
+                                numEndCnefe not in [None, 0]):
                             resultadosPar = (idfamilia, idEndereco, diceCoef, 3)
 
-                        if diceCoef < 0.95 and numEnderCad == numEndCnefe and (numEnderCad not in [None, 0]) and (numEndCnefe not in [None, 0]) :
+                        if diceCoef < 0.95 and numEnderCad == numEndCnefe and (numEnderCad not in [None, 0]) and (
+                                numEndCnefe not in [None, 0]):
                             resultadosPar = (idfamilia, idEndereco, diceCoef, 2)
 
                         if diceCoef < 0.95 and (numEnderCad in [None, 0]) and (numEndCnefe in [None, 0]):
                             resultadosPar = (idfamilia, idEndereco, diceCoef, 1)
 
-                        if diceCoef < 0.95 and numEnderCad != numEndCnefe and (numEnderCad not in [None, 0]) and (numEndCnefe not in [None, 0]):
+                        if diceCoef < 0.95 and numEnderCad != numEndCnefe and (numEnderCad not in [None, 0]) and (
+                                numEndCnefe not in [None, 0]):
                             resultadosPar = (idfamilia, idEndereco, diceCoef, 0)
 
                     i = i + 1
@@ -192,18 +185,19 @@ class JuncaoTools:
         with open("config.json", "r") as json_file:
             dadosConexao = json.load(json_file)
 
-        bd = Dbtool(dadosConexao["host"], dadosConexao["port"], dadosConexao["base"], dadosConexao["user"], dadosConexao["password"])
-
-        #bd = Dbtool("localhost", "5432", "mds_cad_unic", "postgres", "2631")
+        bd = Dbtool(dadosConexao["host"], dadosConexao["port"], dadosConexao["base"], dadosConexao["user"],
+                    dadosConexao["password"])
         for item in self.respostasThreads:
             bd.inseirdados(nomeSchema, tabelaResultado, item)
 
-    def juntarTabelas(self, nomeSchemaCadUnic, tabelaCadUnic, nomeScehemaCnefe, tabelaCnefe, nomeTabelaResultado, tipoResultado ):
+    def juntarTabelas(self, nomeSchemaCadUnic, tabelaCadUnic, nomeScehemaCnefe, tabelaCnefe, nomeTabelaResultado,
+                      tipoResultado):
 
         with open("config.json", "r") as json_file:
             dadosConexao = json.load(json_file)
 
-        bd = Dbtool(dadosConexao["host"], dadosConexao["port"], dadosConexao["base"], dadosConexao["user"], dadosConexao["password"])
+        bd = Dbtool(dadosConexao["host"], dadosConexao["port"], dadosConexao["base"], dadosConexao["user"],
+                    dadosConexao["password"])
 
         nomeTabelaResult = nomeTabelaResultado
         listaAtributos = ['cod_familiar_fam numeric', 'cod_unico_endereco integer', 'dice_coeficiente double precision',
@@ -216,29 +210,15 @@ class JuncaoTools:
         if tipoResultado == 0:
             bd.criartabela("public", nomeTabelaResult, listaAtributos, 1)
 
-
-
-
-        #bd = Dbtool("localhost", "5432", "mds_cad_unic", "postgres", "2631")
-        #nomeTabelaResult = "resultado_" + nomeSchemaCadUnic.split("_")[2] + "_" + tabelaCnefe
-
-
-
-
-
-
         self.prepararDividirTarefa(nomeSchemaCadUnic, tabelaCadUnic, nomeScehemaCnefe, tabelaCnefe)
-        #self.criarMascaraEnderecos()
 
-       ## aqui eu to começando a criar o processos no sistema para dar inicio ao processamento paralelo
-        print("Criando processos =>\n")
+        print("Criando processos\n")
 
         threads = []
         # executor = concurrent.futures.ThreadPoolExecutor(max_workers=self.numThread, thread_name_prefix="Minion")
         for i in range(self.numThread):
             threads.append(Process(target=self.compararTabelas, name="deus",
                                    args=(nomeScehemaCnefe, tabelaCnefe, i, "public", nomeTabelaResult)))
-
 
         for i in range(self.numThread):
             threads[i].start()
@@ -249,26 +229,15 @@ class JuncaoTools:
             # self.compararTabelas(nomeScehemaCnefe,tabelaCnefe, i,"public", nomeTabelaResult)
             # print(threads[i])
 
-
         if tipoResultado == 2:
             f = open(nomeTabelaResultado, "w")
             f.write(','.join(['cod_familiar_fam', 'cod_unico_endereco', 'dice_coeficiente', 'nivel_precisao']) + '\n')
             f.close()
             f = open(nomeTabelaResultado, "a")
 
-            resp = bd.selecionarTabela("public", [nomeTabelaResult],["*"], '', 0)
+            resp = bd.selecionarTabela("public", [nomeTabelaResult], ["*"], '', 0)
 
             for row in resp:
                 f.write(str(row[0]) + ',' + str(row[1]) + ',' + str(row[2]) + ',' + str(row[3]) + '\n')
 
             f.close()
-
-
-
-
-    # executor.shutdown(wait=True)
-
-    # concurrent.futures.wait(threads, timeout=None, return_when=ALL_COMPLETED)
-
-
-
