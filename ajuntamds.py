@@ -35,11 +35,13 @@ if __name__ == '__main__':
 
     prep = PreProcessamento()
 
-    cadunicoEsquema = str(args.cadunic).split(".")[0]
-    cadunicoTabela = str(args.cadunic).split(".")[1]
-
     cnefeEsquema = str(args.cnefe).split(".")[0]
     cnefeTabela = str(args.cnefe).split(".")[1]
+
+    cadunicoEsquema = str(args.cadunic).split(".")[0]
+    cadunicoTabela = str(args.cadunic).split(".")[1] + "_" + cnefeTabela.split("_")[0]
+
+
 
     nomeTabelaResultado = ""
 
@@ -78,7 +80,7 @@ if __name__ == '__main__':
         # pre processando o pach.
 
         nomeTabelaResultado = str(args.saidacsv).replace("\\", "/")
-        print(nomeTabelaResultado)
+        #print(nomeTabelaResultado)
         j.juntarTabelas(cadunicoEsquema, cadunicoTabela, cnefeEsquema, cnefeTabela, nomeTabelaResultado, 1)
 
     if args.saida == 0 and args.saidacsv == 0 and args.saidamult != 0:
