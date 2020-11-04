@@ -32,16 +32,16 @@ Para tal deve-se atentar para o padrão adotado nas nomeclaturas de tabelas e es
      * Esquema: cad_unic_< ano >
      * Tabela: base_cad_unic_< ano >
      * Exemplo - Para o ano de 2019 tem-se:  
-     ```sh
+     ```sql
    CREATE SCHEMA cad_unic_2019
    CREATE TABLE base_cad_unic_2019 (...)
    ```
  * Base do CNEFE:
-    * Esquema: cnefe_<sigla-uf>_<code-ibge>
-    * Tabela: <code-ibge>_<sigla-uf>
+    * Esquema: cnefe_< sigla-uf >_< code-ibge >
+    * Tabela: < code-ibge >_< sigla-uf >
     * Exemplo - Para o estado de São Paulo, cuja a sígla é SP e o código do IBGE é  35, tem-se:
      
-   ```sh
+   ```sql
    CREATE SCHEMA cnefe_sp_35
    CREATE TABLE 35_sp (...)
    ```
