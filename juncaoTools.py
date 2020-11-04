@@ -198,17 +198,34 @@ class JuncaoTools:
         for item in self.respostasThreads:
             bd.inseirdados(nomeSchema, tabelaResultado, item)
 
-    def juntarTabelas(self, nomeSchemaCadUnic, tabelaCadUnic, nomeScehemaCnefe, tabelaCnefe):
+    def juntarTabelas(self, nomeSchemaCadUnic, tabelaCadUnic, nomeScehemaCnefe, tabelaCnefe, nomeTabelaResultado, tipoResultado ):
 
         with open("config.json", "r") as json_file:
             dadosConexao = json.load(json_file)
 
         bd = Dbtool(dadosConexao["host"], dadosConexao["port"], dadosConexao["base"], dadosConexao["user"], dadosConexao["password"])
 
+        nomeTabelaResult = nomeTabelaResultado
+        listaAtributos = ['cod_familiar_fam numeric', 'cod_unico_endereco integer', 'dice_coeficiente double precision',
+                          'nivel_precisao integer']
+
+        if tipoResultado == 2:
+            nomeTabelaResult = os.path.basename(nomeTabelaResultado).replace(".csv", "")
+            bd.criartabela("public", nomeTabelaResult, listaAtributos, 1)
+
+        if tipoResultado == 0:
+            bd.criartabela("public", nomeTabelaResult, listaAtributos, 1)
+
+
+
+
         #bd = Dbtool("localhost", "5432", "mds_cad_unic", "postgres", "2631")
-        nomeTabelaResult = "resultado_" + nomeSchemaCadUnic.split("_")[2] + "_" + tabelaCnefe
-        listaAtributos = ['cod_familiar_fam numeric', 'cod_unico_endereco integer', 'dice_coeficiente double precision', 'nivel_precisao integer']
-        bd.criartabela("public", nomeTabelaResult, listaAtributos, 1)
+        #nomeTabelaResult = "resultado_" + nomeSchemaCadUnic.split("_")[2] + "_" + tabelaCnefe
+
+
+
+
+
 
         self.prepararDividirTarefa(nomeSchemaCadUnic, tabelaCadUnic, nomeScehemaCnefe, tabelaCnefe)
         #self.criarMascaraEnderecos()
@@ -232,7 +249,24 @@ class JuncaoTools:
             # self.compararTabelas(nomeScehemaCnefe,tabelaCnefe, i,"public", nomeTabelaResult)
             # print(threads[i])
 
-        # executor.shutdown(wait=True)
+
+        if tipoResultado == 2:
+            f = open(nomeTabelaResultado, "w")
+            f.write(','.join(['cod_familiar_fam', 'cod_unico_endereco', 'dice_coeficiente', 'nivel_precisao']) + '\n')
+            f.close()
+            f = open(nomeTabelaResultado, "a")
+
+            resp = bd.selecionarTabela("public", [nomeTabelaResult],["*"], '', 0)
+
+            for row in resp:
+                f.write(str(row[0]) + ',' + str(row[1]) + ',' + str(row[2]) + ',' + str(row[3]) + '\n')
+
+            f.close()
+
+
+
+
+    # executor.shutdown(wait=True)
 
     # concurrent.futures.wait(threads, timeout=None, return_when=ALL_COMPLETED)
 

@@ -30,7 +30,7 @@ class Dbtool:
             sql = sql + " " + "limit " + str(limitlinhas)
         sql = sql + ";"
 
-        print(sql)
+        #print(sql)
         cur = self.conn.cursor()
         cur.execute(sql)
         # print(cur.description[0][0], cur.description[0][1] , cur.description[1][0], cur.description[1][1])
@@ -163,7 +163,7 @@ class Dbtool:
         self.conn.commit()
 
 
-p = Dbtool("localhost","5432","mds_cad_unic","postgres","2631")
+#p = Dbtool("localhost","5432","mds_cad_unic","postgres","2631")
 
 
 # tab = ["mgs as mg", "ibges as ib"]
