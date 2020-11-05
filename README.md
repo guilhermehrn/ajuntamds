@@ -75,6 +75,8 @@ Por exemplo, para fazer a correlação das bases do Cadastro Único com o Cnefe 
 ```sh
 python ajuntamds.py -ca cad_unic_2019.base_cad_unic_2019 -cn cnefe_35_sp.35_sp
 ```
+Para obter a relação de todos os parametros de linha de comando que podem ser ultilizados, consulte a [wiki](https://github.com/guilhermehrn/ajuntamds.wiki.git).
+
 ### Pre-Processamento das bases de dados
 
 O pré-processamento de bases de dados nada mais é que a criação de tabelas e views auxiliares necessárias para o funcionamento do 
@@ -117,7 +119,12 @@ com as bases do Cadastro Único, bem como, pode-se correlacionar com as bases do
 consequentemente os dados do cadastro único são correlacionados com os dados do CNEFE.
 
 #### O Nível de Precisão
-Para ter uma forma básica de avaliarmos os resultados foi criado grupos de resultados ou níveis de precisão dos resultados. Esses níveis de precisão vão de uma escala de 0 a 5, sendo 0 (zero) com menor nível de precisão ou menor qualidade das respostas, e 5 maior nível de precisão ou melhor qualidade na resposta. A relação dos níveis de precisão se dá da seguinte forma:
+Para ter uma forma básica de avaliarmos a qualidade da correlacão entre as instâncias do Cadastro Único  com as instâncias 
+do CNFE foi criado grupos de resultados ou níveis de precisão dos resultados. 
+
+Esses níveis de precisão vão de uma escala de 0 a 5, sendo 0 (zero) com menor nível de precisão ou menor qualidade das 
+respostas, e 5 maior nível de precisão ou melhor qualidade na resposta. A relação dos níveis de precisão se dá da 
+seguinte forma:
 
 * D = igual ao Coeficiente de Dice.
 * Eu = número do endereço no cadastra único.
@@ -132,7 +139,27 @@ Então temos os seguintes níveis de precisão:
 * 4 : D > 95% e Eu ≠ Ec e Eu = 0 e Ec = 0
 * 5 : D > 95% e Eu = Ec e Eu ≠ 0 e Ec ≠ 0
 
+Por exemplo, na tabela acima vemos, vemos que a primeira instancia tem nível de precisão igual a 5 pois o número do
+endereço do cadastro único é igual  do CNEFE e ambos são diferentes de zero e o os endereços de ambas as bases são idênticos
+apresentando um coeficiente de similaridade (Coeficiente de Dice)  igual a 1 (ou 100%).
 
+
+### Histórico de Releases
+
+* 1.0:
+    *Início de projeto, protótipo dos algoritmos
+
+* 2.0:
+    * Paralelização do programa.
+    * Troca da implementação do algoritmo de Dice 
+
+* 2.1, 2.2, 2.3, 2.4:
+    * Melhorias no código.
+    * Melhorias no  processo de distibuição de tarefas para as threads.
+    
+* 2.5: 
+    * Implementação dos paramentros de linha de comando de usuario
+    * Correção de bugs.
 
 
 
