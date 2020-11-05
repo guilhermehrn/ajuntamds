@@ -102,4 +102,37 @@ Além disso aumenta a chaces da memória estourar. Então recomenda-se que deixe
 
 Caso esse parâmetro não seja passado ele vai funcionar com 2 theads simultâneas.
 
+### Interpretando os resultados
+O Programa irá gerar uma tabela contendo para cada instância o código da Família, o código do endereço, coeficiente de Dice, e o nível de precisão, 
+como podemos ver a seguir:
+
+| cod_familiar_fam | cod_unico_endereco | dice_coeficiente | nivel_precisao |
+|:----------------:|:------------------:|-----------------:|:--------------:|
+|          1111111 |          222222222 |              1.0 |              5 |
+|          3333333 |          444444444 |            0.888 |              3 |
+|          4444444 |          223333333 |            0.955 |              4 |
+
+Tal tabela é o que chamamos de tabela de junção, pois  pode-se correlacionar através do campo "cod_familiar_fam"
+com as bases do Cadastro Único, bem como, pode-se correlacionar com as bases do CNEFE através do campo "cod_unico_endereco". Logo, 
+consequentemente os dados do cadastro único são correlacionados com os dados do CNEFE.
+
+#### O Nível de Precisão
+Para ter uma forma básica de avaliarmos os resultados foi criado grupos de resultados ou níveis de precisão dos resultados. Esses níveis de precisão vão de uma escala de 0 a 5, sendo 0 (zero) com menor nível de precisão ou menor qualidade das respostas, e 5 maior nível de precisão ou melhor qualidade na resposta. A relação dos níveis de precisão se dá da seguinte forma:
+
+* D = igual ao Coeficiente de Dice.
+* Eu = número do endereço no cadastra único.
+* Ec = número do endereço no CNEFE.
+
+Então temos os seguintes níveis de precisão:
+
+* 0 : D < 95% e Eu ≠ Ec e Eu ≠ 0 e Ec ≠ 0
+* 1 : D < 95% e Eu = Ec e Eu = 0 e Ec = 0
+* 2 : D < 95% e Eu = Ec e Eu ≠ 0 e Ec ≠ 0 
+* 3 : D > 95% e Eu ≠ Ec e Eu ≠ 0 e Ec ≠ 0
+* 4 : D > 95% e Eu ≠ Ec e Eu = 0 e Ec = 0
+* 5 : D > 95% e Eu = Ec e Eu ≠ 0 e Ec ≠ 0
+
+
+
+
 
