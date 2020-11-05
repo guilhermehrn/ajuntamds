@@ -75,7 +75,7 @@ Por exemplo, para fazer a correlação das bases do Cadastro Único com o Cnefe 
 ```sh
 python ajuntamds.py -ca cad_unic_2019.base_cad_unic_2019 -cn cnefe_35_sp.35_sp
 ```
-Para obter a relação de todos os parametros de linha de comando que podem ser ultilizados, consulte a [wiki](https://github.com/guilhermehrn/ajuntamds.wiki.git).
+Para obter a relação de todos os parametros de linha de comando que podem ser ultilizados, consulte a [wiki](https://github.com/guilhermehrn/ajuntamds/wiki).
 
 ### Pre-Processamento das bases de dados
 
