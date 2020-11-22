@@ -52,17 +52,26 @@ if __name__ == '__main__':
     # print(args.preprocess)
     ini = time.time()
     if args.preprocess == 1:
+        print("Preprocessamento obrigatório ativo ")
+        print("preprocessando Tabela do Cadastro Unico.")
         prep.testarseProcessado(cadunicoEsquema, cadunicoTabela)
         prep.preProcessarBaseCadUnico(cadunicoEsquema, cadunicoTabela)
+        print("Preprocessamento do Cadastro Unico concluido.\n")
 
+        print("Preprocessando Tabela do CNEFE.")
         prep.testarseProcessado(cnefeEsquema, cnefeTabela)
         prep.preProcessarBaseCnefe(cnefeEsquema, cnefeTabela)
+        print("Preprocessamento do CNEFE concluido.\n")
 
     if not prep.testarseProcessado(cadunicoEsquema, cadunicoTabela):
+        print("preprocessando Tabela do Cadastro Unico que não havia sido processada.")
         prep.preProcessarBaseCadUnico(cadunicoEsquema, cadunicoTabela)
+        print("Preprocessamento do Cadastro Unico concluido.\n")
 
     if not prep.testarseProcessado(cnefeEsquema, cnefeTabela):
+        print("preprocessando Tabela do CNEFE que não havia sido processada.")
         prep.preProcessarBaseCnefe(cnefeEsquema, cnefeTabela)
+        print("Preprocessamento concluido.\n")
 
     if args.saida == 1 and args.saidacsv == 0 and args.saidamult == 0:
         nomeTabelaResultado = cnefeTabela +'_'+cadunicoTabela

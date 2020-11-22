@@ -127,7 +127,7 @@ respostas, e 5 maior nível de precisão ou melhor qualidade na resposta. A rela
 seguinte forma:
 
 * D = igual ao Coeficiente de Dice.
-* Eu = número do endereço no cadastra único.
+* Eu = número do endereço no cadastro único.
 * Ec = número do endereço no CNEFE.
 
 Então temos os seguintes níveis de precisão:
@@ -140,8 +140,8 @@ Então temos os seguintes níveis de precisão:
 * 5 : D > 95% e Eu = Ec e Eu ≠ 0 e Ec ≠ 0
 
 Por exemplo, na tabela acima vemos, vemos que a primeira instancia tem nível de precisão igual a 5 pois o número do
-endereço do cadastro único é igual  do CNEFE e ambos são diferentes de zero e o os endereços de ambas as bases são idênticos
-apresentando um coeficiente de similaridade (Coeficiente de Dice)  igual a 1 (ou 100%).
+endereço do cadastro único é igual ao que está presente no CNEFE e ambos são diferentes de zero e o os endereços de ambas 
+as bases são idênticos apresentando um coeficiente de similaridade (Coeficiente de Dice)  igual a 1 (ou 100%).
 
 
 ### Histórico de Releases
@@ -158,7 +158,7 @@ apresentando um coeficiente de similaridade (Coeficiente de Dice)  igual a 1 (ou
     * Melhorias no  processo de distibuição de tarefas para as threads.
     
 * 2.5: 
-    * Implementação dos paramentros de linha de comando de usuario
+    * Implementação dos paramentros de linha de comando de usuário
     * Correção de bugs.
 
 
