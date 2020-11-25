@@ -8,7 +8,7 @@ import json
 
 
 class JuncaoTools:
-    """Classe que faz a junção das tabelas do banco de dados."""
+    """Classe que faz a juncao das tabelas do banco de dados."""
 
     def __init__(self, numtheads):
         self.similar = Similaridade()
