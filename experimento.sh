@@ -1,9 +1,16 @@
 # !/bin/bash
 
-THREADS=7
-CADUNIC_ESQ=cad_unic_2019
-CADUNIC_TAB=base_cad_unic_2019
-ANO=2019
+
+# Scripit usado para rodar a base para todo o brasil. Construido para um ano
+
+#As 5 seguintes variaveis deve ser setada pelo usuario
+THREADS=7  # Aqui setar o numero de Threads de processador que será usado no processamento
+CADUNIC_ESQ=cad_unic_2019  #esquema do cadastro unico que será usado
+CADUNIC_TAB=base_cad_unic_2019 #tabela do cadastro unico que será usado
+ANO=2019 #ano dabase de cadastro unico
+#=======================================================================================================
+
+#A seguir começa o processamento da base de dados
 
 CAUNIC=$CADUNIC_ESQ.$CADUNIC_TAB
 

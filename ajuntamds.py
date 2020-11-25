@@ -15,19 +15,19 @@ if __name__ == '__main__':
                         help="Entrada das tabelas de dados do CNEFE")
 
     parser.add_argument('--threads', "-t", required=False, metavar='numero_threads', type=int, default=4,
-                        help="Número de Thread que o programa irá ultilizar para processar os dados.")
+                        help="Numero de Thread que o programa irá ultilizar para processar os dados.")
 
     parser.add_argument('--preprocess', "-p", required=False, metavar='', nargs='?', default=0, const=1,
                         help="Força o pre-processamento dos dados.")
 
     parser.add_argument('--saida', "-s", required=False, metavar='nome_tabela', nargs='?', default=0, const=1,
-                        help="Saida padrão do programa. A tabela resultado será gravada no proprio banco de dados dentro do esquema resultados.")
+                        help="Saida padrao do programa. A tabela resultado sera gravada no proprio banco de dados dentro do esquema resultados.")
 
     parser.add_argument('--saidacsv', "-sc", required=False, metavar='nome_arquivo.csv', nargs='?', default=0,
-                        help="A saída do programa sera em formato em arquivo csv. A tabela resultado será gravada no proprio banco de dados dentro do esquema resultados.")
+                        help="A saida do programa sera em formato em arquivo csv. A tabela resultado sera gravada no proprio banco de dados dentro do esquema resultados.")
 
     parser.add_argument('--saidamult', "-sm", required=False, metavar='nome_arquivo.csv', nargs='?', default=0, const=1,
-                        help="Multiplas saídas. O programa irá gerar a tabela de resultados dentro do banco de dados quanto em formato csv.")
+                        help="Multiplas saidas. O programa irá gerar a tabela de resultados dentro do banco de dados quanto em formato csv.")
 
     args = parser.parse_args()
 
@@ -46,13 +46,13 @@ if __name__ == '__main__':
     nomeTabelaResultado = ""
 
     print("AJUNTA MDS\n")
-    print("Programa de correlação de bases do CNEFE com as bases do Cadastro Unico\n")
+    print("Programa de correlacao de bases do CNEFE com as bases do Cadastro Unico\n")
     print("=========================================================================\n")
 
     # print(args.preprocess)
     ini = time.time()
     if args.preprocess == 1:
-        print("Preprocessamento obrigatório ativo ")
+        print("Preprocessamento obrigatorio ativo ")
         print("preprocessando Tabela do Cadastro Unico.")
         prep.testarseProcessado(cadunicoEsquema, cadunicoTabela)
         prep.preProcessarBaseCadUnico(cadunicoEsquema, cadunicoTabela)
@@ -64,7 +64,7 @@ if __name__ == '__main__':
         print("Preprocessamento do CNEFE concluido.\n")
 
     if not prep.testarseProcessado(cadunicoEsquema, cadunicoTabela):
-        print("preprocessando Tabela do Cadastro Unico que não havia sido processada.")
+        print("preprocessando Tabela do Cadastro Unico que nao havia sido processada.")
         prep.preProcessarBaseCadUnico(cadunicoEsquema, cadunicoTabela)
         print("Preprocessamento do Cadastro Unico concluido.\n")
 
