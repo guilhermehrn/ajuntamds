@@ -150,6 +150,7 @@ class JuncaoTools:
                     idEndereco = int(endereco[0])
 
                     diceCoef = self.similar.dice_coefficient1(','.join(enderecoCadUnic), ','.join(enderecoCnefe))
+                    #diceCoef = self.similar.dice_coefficient1(','.join(enderecoCadUnic).replace(" ", ""), ','.join(enderecoCnefe).replace(" ", ""))
 
                     if diceCoef >= resultadosPar[2]:
                         if diceCoef >= 0.95 and numEnderCad == numEndCnefe and (numEnderCad not in [None, 0]) and (

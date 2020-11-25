@@ -124,6 +124,7 @@ class Dbtool:
 
         select = "SELECT " + campoTabelaOrigem + ", count (*) AS quantidade " + 'FROM ' + nomeSchema + '."' + nomeTabelaOrigem + '" GROUP BY ' + campoTabelaOrigem + " ORDER BY " + campoTabelaOrigem
         sql = "CREATE MATERIALIZED VIEW " + nomeSchema + '."' + nomeTabela + '" AS (' + select + ');'
+        #print(sql)
 
         if temQueDropar:
             cur = self.conn.cursor()

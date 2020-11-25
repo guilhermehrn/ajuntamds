@@ -39,7 +39,7 @@ if __name__ == '__main__':
     cnefeTabela = str(args.cnefe).split(".")[1]
 
     cadunicoEsquema = str(args.cadunic).split(".")[0]
-    cadunicoTabela = str(args.cadunic).split(".")[1] + "_" + cnefeTabela.split("_")[0]
+    cadunicoTabela = str(args.cadunic).split(".")[1]
 
 
 

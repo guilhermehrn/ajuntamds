@@ -37,14 +37,16 @@ class PreProcessamento:
         self.db.inseirdados("public", "tabela_controle", [aux])
 
     def preProcessarBaseCadUnico(self, nomeSchema, nomeTabela):
-
+        #print(nomeSchema)
+        #print (nomeTabela)
         nomeTabGrupoEstado = "grupo_estado_" + nomeTabela
         capoAgrupamento = "cod_munic_ibge_2_fam"
 
         self.db.deletarDadoDaTabelaControle(nomeSchema, nomeTabela)
 
         self.db.criarTabelaDeGrupos(nomeSchema, nomeTabGrupoEstado, nomeTabela, capoAgrupamento, 1)
-        tabGrupoEstados = self.db.selecionarTabela(nomeSchema, [nomeTabGrupoEstado], ["*"], "", 0)
+
+        tabGrupoEstados =self.db.selecionarTabela(nomeSchema, [nomeTabGrupoEstado], ["*"], "", 0)
 
         for estado in tabGrupoEstados:
             nometabelaEstado = nomeTabela + "_" + str(estado[0])
