@@ -218,12 +218,14 @@ class JuncaoTools:
         threads = []
         # executor = concurrent.futures.ThreadPoolExecutor(max_workers=self.numThread, thread_name_prefix="Minion")
         for i in range(self.numThread):
-            threads.append(Process(target=self.compararTabelas, name="deus",
+            threads.append(Process(target=self.compararTabelas, name="Ajuntamds",
                                    args=(nomeScehemaCnefe, tabelaCnefe, i, "public", nomeTabelaResult)))
 
         for i in range(self.numThread):
             threads[i].start()
             # threads[i].join()
+
+        print("Processando Daddos...")
 
         for i in range(self.numThread):
             threads[i].join()

@@ -28,7 +28,8 @@ class Dbtool:
             sql = sql + " " + "limit " + str(limitlinhas)
         sql = sql + ";"
 
-        # print(sql)
+        #print("%%%%%%%")
+        #print(sql)
         cur = self.conn.cursor()
         cur.execute(sql)
         rows = cur.fetchall()
@@ -124,6 +125,7 @@ class Dbtool:
 
         select = "SELECT " + campoTabelaOrigem + ", count (*) AS quantidade " + 'FROM ' + nomeSchema + '."' + nomeTabelaOrigem + '" GROUP BY ' + campoTabelaOrigem + " ORDER BY " + campoTabelaOrigem
         sql = "CREATE MATERIALIZED VIEW " + nomeSchema + '."' + nomeTabela + '" AS (' + select + ');'
+
         #print(sql)
 
         if temQueDropar:

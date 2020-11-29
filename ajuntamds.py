@@ -3,6 +3,7 @@ from preProcessamento import PreProcessamento
 
 import time
 import argparse
+import sys
 
 if __name__ == '__main__':
 
@@ -50,7 +51,7 @@ if __name__ == '__main__':
     print("Programa de correlacao de bases do CNEFE com as bases do Cadastro Unico\n")
     print("=========================================================================\n")
 
-    # print(args.preprocess)
+    #print(args.cadunic)
     ini = time.time()
     if args.preprocess == 1:
         print("Preprocessamento obrigatorio ativo ")
@@ -108,3 +109,4 @@ if __name__ == '__main__':
     fim = time.time()
     print("\n=========================================================================\n")
     print("Tempo de processemento: " + str(fim - ini))
+    sys.exit(0)

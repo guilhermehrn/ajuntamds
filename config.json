@@ -1,7 +1,7 @@
 {
-  "host": "150.164.7.139",
+  "host": "localhost",
   "port": "5432",
-  "base": "base_mds",
-  "user": "guilherme",
+  "base": "mds_cad_unic",
+  "user": "postgres",
   "password": "2631"
 }

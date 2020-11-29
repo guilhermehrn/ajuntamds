@@ -16,6 +16,8 @@ echo “SCRIPT .BAT pra crusar bases de dados”
 ::python ajuntamds.py -ca cad_unic_2011.base_cad_unic_2011 -cn cnefe_rj_33.33_rj -s resposta_33_rj_p2 -t 7
 ::python ajuntamds.py -ca cad_unic_2019.base_cad_unic_2019 -cn cnefe_df_53.5_df -s resposta_53_df -t 7
 
-nohup python ajuntamds.py -ca cad_unic_2019.base_cad_unic_2019 -cn cnefe_ba_29.29_ba -s resp_semespaco_ba_2019 -t 7
+nohup python ajuntamds.py -ca cad_unic_2019.base_cad_unic_2019 -cn cnefe_ba_29.29_ba -s resp_semespaco_ba_2019 -t 8 &
 
-nohup python3 ajuntamds.py -ca cad_unic_2019.base_cad_unic_2019 -cn cnefe_31_mg.31_mg -s resp_semespaco_mg_2019
+nohup python3 ajuntamds.py -ca cad_unic_2019.base_cad_unic_2019 -cn cnefe_mg_31.31_mg -s resp_semespaco_mg_2019 -t 8 &
+
+python ajuntamds.py -ca cad_unic_2019.contagem_2019 -cn cnefe_mg_31.31_mg -s resposta_contagem_2019 -t 6
