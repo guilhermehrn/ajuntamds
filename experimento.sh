@@ -25,7 +25,7 @@ python3 ajuntamds.py -ca cad_unic_$ANO.base_cad_unic_$ANO -cn cnefe_ac_12.12_ac 
 echo "Teminado o processamento do estado de AC"
 
 echo "Iniciando processamento do estado de AM"
-python3 ajuntamds.py -ca cad_unic_$ANO.base_cad_unic_$ANO -cn cnefe_ac_13.13_am -s resultado_13_am_$ANO -t $THREADS
+python3 ajuntamds.py -ca cad_unic_$ANO.base_cad_unic_$ANO -cn cnefe_am_13.13_am -s resultado_13_am_$ANO -t $THREADS
 echo "Teminado o processamento do estado de AM"
 
 echo "Iniciando processamento do estado de RR"
@@ -77,15 +77,15 @@ python3 ajuntamds.py -ca cad_unic_$ANO.base_cad_unic_$ANO -cn cnefe_se_28.28_se 
 echo "Teminado o processamento do estado de SE"
 
 echo "Iniciando processamento do estado de BA"
-python3 ajuntamds.py -ca cad_unic_$ANO.base_cad_unic_$ANO -cn cnefe_29_ba.29_ba -s resultado_29_ba_$ANO -t $THREADS
+python3 ajuntamds.py -ca cad_unic_$ANO.base_cad_unic_$ANO -cn cnefe_ba_29.29_ba -s resultado_29_ba_$ANO -p -t $THREADS
 echo "Teminado o processamento do estado de BA"
 
 echo "Iniciando processamento do estado de MG"
-python3 ajuntamds.py -ca cad_unic_$ANO.base_cad_unic_$ANO -cn cnefe_mg_31.31_mg -s resultado_31_mg_$ANO -t $THREADS
+python3 ajuntamds.py -ca cad_unic_$ANO.base_cad_unic_$ANO -cn cnefe_mg_31.31_mg -s resultado_31_mg_$ANO -p -t $THREADS
 echo "Teminado o processamento do estado de MG"
 
 echo "Iniciando processamento do estado de ES"
-python3 ajuntamds.py -ca cad_unic_$ANO.base_cad_unic_$ANO -cn cnefe_es_32.32_es -s resultado_32_es_$ANO -t $THREADS
+python3 ajuntamds.py -ca cad_unic_$ANO.base_cad_unic_$ANO -cn cnefe_es_32.32_es -s resultado_32_es_$ANO -p -t $THREADS
 echo "Teminado o processamento do estado de ES"
 
 echo "Iniciando processamento do estado de RJ"
