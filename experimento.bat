@@ -8,8 +8,6 @@ CADUNIC=cad_unic_2012.base_cad_unic_2012_ESQ.cad_unic_2012.base_cad_unic_2012_TA
 
 echo "Iniciando processamento do estado de RO"
 
-
-python ajuntamds.py -ca cad_unic_2012.base_cad_unic_2012 -cn cnefe_ro_11.11_ro -s resultado_11_ro_2012 -p -t 7
 echo "Teminado o processamento do estado de RO"
 
 echo "Iniciando processamento do estado de AC"
