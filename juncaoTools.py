@@ -106,7 +106,7 @@ class JuncaoTools:
                 t = str(os.getpid())
 
                 cidadeCorrente = int(familia[1])
-                # print(t + ": buscando a Cidade " + str(cidadeCorrente))
+                #print(t + ": buscando a Cidade " + str(cidadeCorrente))
                 nometabelaCnefeCorrente = tabelaCnefe + "_" + str(cidadeCorrente)
 
                 conjuntoCidadeCnefe = dbaseth.selecionarTabela(nomeScehemaCnefe, [nometabelaCnefeCorrente],
@@ -254,3 +254,6 @@ class JuncaoTools:
                 f.write(str(row[0]) + ',' + str(row[1]) + ',' + str(row[2]) + ',' + str(row[3]) + '\n')
 
             f.close()
+
+if __name__ == '__main__':
+    print("a")
