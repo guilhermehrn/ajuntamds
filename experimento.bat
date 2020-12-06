@@ -79,7 +79,7 @@ echo "Iniciando processamento do estado de ES"
 echo "Teminado o processamento do estado de ES"
 
 echo "Iniciando processamento do estado de RJ"
-python ajuntamds.py -ca cad_unic_2012.base_cad_unic_2012 -cn cnefe_rj_33.33_rj -s resultado_33_rj_2012 -t 7
+::python ajuntamds.py -ca cad_unic_2012.base_cad_unic_2012 -cn cnefe_rj_33.33_rj -s resultado_33_rj_2012 -t 7
 echo "Teminado o processamento do estado de RJ"
 
 echo "Iniciando processamento do estado de PR"
@@ -91,23 +91,23 @@ echo "Iniciando processamento do estado de SC"
 echo "Teminado o processamento do estado de SC"
 
 echo "Iniciando processamento do estado de RS"
-python ajuntamds.py -ca cad_unic_2012.base_cad_unic_2012 -cn cnefe_rs_43.43_rs -s resultado_43_rs_2012 -t 7
+::python ajuntamds.py -ca cad_unic_2012.base_cad_unic_2012 -cn cnefe_rs_43.43_rs -s resultado_43_rs_2012 -t 7
 echo "Teminado o processamento do estado de RS"
 
 echo "Iniciando processamento do estado de MS"
-python ajuntamds.py -ca cad_unic_2012.base_cad_unic_2012 -cn cnefe_ms_50.50_ms -s resultado_50_ms_2012 -t 7
+::python ajuntamds.py -ca cad_unic_2012.base_cad_unic_2012 -cn cnefe_ms_50.50_ms -s resultado_50_ms_2012 -t 7
 echo "Teminado o processamento do estado de MS"
 
 echo "Iniciando processamento do estado de MT"
-python ajuntamds.py -ca cad_unic_2012.base_cad_unic_2012 -cn cnefe_mt_51.51_mt -s resultado_51_mt_2012 -t 7
+::python ajuntamds.py -ca cad_unic_2012.base_cad_unic_2012 -cn cnefe_mt_51.51_mt -s resultado_51_mt_2012 -t 7
 echo "Teminado o processamento do estado de MT"
 
 echo "Iniciando processamento do estado de GO"
-python ajuntamds.py -ca cad_unic_2012.base_cad_unic_2012 -cn cnefe_go_52.52_go -s resultado_52_go_2012 -t 7
+::python ajuntamds.py -ca cad_unic_2012.base_cad_unic_2012 -cn cnefe_go_52.52_go -s resultado_52_go_2012 -t 7
 echo "Teminado o processamento do estado de GO"
 
 echo "Iniciando processamento do estado de DF"
-python ajuntamds.py -ca cad_unic_2012.base_cad_unic_2012 -cn cnefe_df_53.53_df -s resultado_53_df_2012 -t 7
+::python ajuntamds.py -ca cad_unic_2012.base_cad_unic_2012 -cn cnefe_df_53.53_df -s resultado_53_df_2012 -t 7
 echo "Teminado o processamento do estado de DF"
 
 echo "Iniciando processamento do estado de SP"

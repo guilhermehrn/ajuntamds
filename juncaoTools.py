@@ -96,9 +96,14 @@ class JuncaoTools:
                          dadosConexao["password"])
 
         for familia in self.tarefasParaTheads[faixaCadUnico]:
-            familia[2].replace(" ", "")
-            familia[3].replace(" ", "")
-            familia[4].replace(" ", "")
+            if familia[2] != None:
+                familia[2].replace(" ", "")
+
+            if familia[3] != None:
+                familia[3].replace(" ", "")
+
+            if familia[4] != None:
+                familia[4].replace(" ", "")
 
         for familia in self.tarefasParaTheads[faixaCadUnico]:
 
@@ -119,15 +124,26 @@ class JuncaoTools:
                     # lprefcep = str(int(familia[self.indexColCadUnic["num_cep_logradouro_fam"]])/1000)
 
                     if preCepCnefe in conjuntoCidadeCnefeDic:
-                        linha[1].replace(" ", "")
-                        linha[2].replace(" ", "")
-                        linha[3].replace(" ", "")
+                        if linha[1] != None:
+                            linha[1].replace(" ", "")
+
+                        if linha[2] != None:
+                            linha[2].replace(" ", "")
+
+                        if linha[3] != None:
+                            linha[3].replace(" ", "")
                         conjuntoCidadeCnefeDic[preCepCnefe].append(linha)
                         quantidadeConjCnefe[preCepCnefe] = quantidadeConjCnefe[preCepCnefe] + 1
                     else:
-                        linha[1].replace(" ", "")
-                        linha[2].replace(" ", "")
-                        linha[3].replace(" ", "")
+                        if linha[1] != None:
+                            linha[1].replace(" ", "")
+
+                        if linha[2] != None:
+                            linha[2].replace(" ", "")
+
+                        if linha[3] != None:
+                            linha[3].replace(" ", "")
+
                         conjuntoCidadeCnefeDic[preCepCnefe] = [linha]
                         quantidadeConjCnefe[preCepCnefe] = 1
 
@@ -159,8 +175,12 @@ class JuncaoTools:
 
                     idEndereco = int(endereco[0])
 
-                    diceCoef = self.similar.dice_coefficient1(','.join(enderecoCadUnic), ','.join(enderecoCnefe))
-                    #diceCoef = self.similar.dice_coefficient1(','.join(enderecoCadUnic).replace(" ", ""), ','.join(enderecoCnefe).replace(" ", ""))
+                    try:
+                        diceCoef = self.similar.dice_coefficient1(','.join(enderecoCadUnic), ','.join(enderecoCnefe))
+                        #diceCoef = self.similar.dice_coefficient1(','.join(enderecoCadUnic).replace(" ", ""), ','.join(enderecoCnefe).replace(" ", ""))
+                    except(Exception):
+                        mensagem = "Erro na comparação entre a instancia do Cad. Unico" + str(idfamilia) + "e o endereço do CNEFE " + str(idEndereco)
+                        print(mensagem)
 
                     if diceCoef >= resultadosPar[2]:
                         if diceCoef >= 0.95 and numEnderCad == numEndCnefe and (numEnderCad not in [None, 0]) and (
