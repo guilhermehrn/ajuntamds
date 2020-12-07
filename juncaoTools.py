@@ -178,6 +178,7 @@ class JuncaoTools:
                     try:
                         diceCoef = self.similar.dice_coefficient1(','.join(enderecoCadUnic), ','.join(enderecoCnefe))
                         #diceCoef = self.similar.dice_coefficient1(','.join(enderecoCadUnic).replace(" ", ""), ','.join(enderecoCnefe).replace(" ", ""))
+
                     except(Exception):
                         mensagem = "Erro na comparação entre a instancia do Cad. Unico" + str(idfamilia) + "e o endereço do CNEFE " + str(idEndereco)
                         print(mensagem)
