@@ -114,38 +114,43 @@ class JuncaoTools:
                 #print(t + ": buscando a Cidade " + str(cidadeCorrente))
                 nometabelaCnefeCorrente = tabelaCnefe + "_" + str(cidadeCorrente)
 
-                conjuntoCidadeCnefe = dbaseth.selecionarTabela(nomeScehemaCnefe, [nometabelaCnefeCorrente],
+                try:
+                    conjuntoCidadeCnefe = dbaseth.selecionarTabela(nomeScehemaCnefe, [nometabelaCnefeCorrente],
                                                                self.formEndeCnefe, '', 0)
+                except(Exception):
+                    print ("ERRO 1 : Não existe cidade de ID" + str(familia[1]) + " na base do CNEFE para a familia de com ID: " + str (familia[0]))
+
                 conjuntoCidadeCnefeDic = {}
                 quantidadeConjCnefe = {}
 
-                for linha in conjuntoCidadeCnefe:
-                    preCepCnefe = str(int(linha[5]) // 1000)
-                    # lprefcep = str(int(familia[self.indexColCadUnic["num_cep_logradouro_fam"]])/1000)
+                if conjuntoCidadeCnefe != None:
+                    for linha in conjuntoCidadeCnefe:
+                        preCepCnefe = str(int(linha[5]) // 1000)
+                        # lprefcep = str(int(familia[self.indexColCadUnic["num_cep_logradouro_fam"]])/1000)
 
-                    if preCepCnefe in conjuntoCidadeCnefeDic:
-                        if linha[1] != None:
-                            linha[1].replace(" ", "")
+                        if preCepCnefe in conjuntoCidadeCnefeDic:
+                            if linha[1] != None:
+                                linha[1].replace(" ", "")
 
-                        if linha[2] != None:
-                            linha[2].replace(" ", "")
+                            if linha[2] != None:
+                                linha[2].replace(" ", "")
 
-                        if linha[3] != None:
-                            linha[3].replace(" ", "")
-                        conjuntoCidadeCnefeDic[preCepCnefe].append(linha)
-                        quantidadeConjCnefe[preCepCnefe] = quantidadeConjCnefe[preCepCnefe] + 1
-                    else:
-                        if linha[1] != None:
-                            linha[1].replace(" ", "")
+                            if linha[3] != None:
+                                linha[3].replace(" ", "")
+                            conjuntoCidadeCnefeDic[preCepCnefe].append(linha)
+                            quantidadeConjCnefe[preCepCnefe] = quantidadeConjCnefe[preCepCnefe] + 1
+                        else:
+                            if linha[1] != None:
+                                linha[1].replace(" ", "")
 
-                        if linha[2] != None:
-                            linha[2].replace(" ", "")
+                            if linha[2] != None:
+                                linha[2].replace(" ", "")
 
-                        if linha[3] != None:
-                            linha[3].replace(" ", "")
+                            if linha[3] != None:
+                                linha[3].replace(" ", "")
 
-                        conjuntoCidadeCnefeDic[preCepCnefe] = [linha]
-                        quantidadeConjCnefe[preCepCnefe] = 1
+                            conjuntoCidadeCnefeDic[preCepCnefe] = [linha]
+                            quantidadeConjCnefe[preCepCnefe] = 1
 
                 conjuntoCidadeCnefe = None
 
@@ -164,49 +169,50 @@ class JuncaoTools:
             i = 0
             diceCoef = 0.0
 
-            if preCepCad in conjuntoCidadeCnefeDic:
-                while not (math.isclose(diceCoef, 1.0) and numEnderCad == numEndCnefe) and i < quantidadeConjCnefe[preCepCad]:
-                    # for endereco in self.conjuntoCidadeCnefeDic[preCepCad]:
-                    endereco = conjuntoCidadeCnefeDic[preCepCad][i]
-                    numEndCnefe = endereco[4]
+            if conjuntoCidadeCnefeDic != {}:
+                if preCepCad in conjuntoCidadeCnefeDic:
+                    while not (math.isclose(diceCoef, 1.0) and numEnderCad == numEndCnefe) and i < quantidadeConjCnefe[preCepCad]:
+                        # for endereco in self.conjuntoCidadeCnefeDic[preCepCad]:
+                        endereco = conjuntoCidadeCnefeDic[preCepCad][i]
+                        numEndCnefe = endereco[4]
 
-                    # endcf = self.formEndeCnefe
-                    enderecoCnefe = [endereco[1], endereco[2], endereco[3]]
+                        # endcf = self.formEndeCnefe
+                        enderecoCnefe = [endereco[1], endereco[2], endereco[3]]
 
-                    idEndereco = int(endereco[0])
+                        idEndereco = int(endereco[0])
 
-                    try:
-                        diceCoef = self.similar.dice_coefficient1(','.join(enderecoCadUnic), ','.join(enderecoCnefe))
-                        #diceCoef = self.similar.dice_coefficient1(','.join(enderecoCadUnic).replace(" ", ""), ','.join(enderecoCnefe).replace(" ", ""))
+                        try:
+                            diceCoef = self.similar.dice_coefficient1(','.join(enderecoCadUnic), ','.join(enderecoCnefe))
+                            #diceCoef = self.similar.dice_coefficient1(','.join(enderecoCadUnic).replace(" ", ""), ','.join(enderecoCnefe).replace(" ", ""))
 
-                    except(Exception):
-                        mensagem = "Erro na comparação entre a instancia do Cad. Unico" + str(idfamilia) + "e o endereço do CNEFE " + str(idEndereco)
-                        print(mensagem)
+                        except(Exception):
+                            mensagem = "Erro na comparação entre a instancia do Cad. Unico" + str(idfamilia) + "e o endereço do CNEFE " + str(idEndereco)
+                            print(mensagem)
 
-                    if diceCoef >= resultadosPar[2]:
-                        if diceCoef >= 0.95 and numEnderCad == numEndCnefe and (numEnderCad not in [None, 0]) and (
-                                numEndCnefe not in [None, 0]):
-                            resultadosPar = (idfamilia, idEndereco, diceCoef, 5)
+                        if diceCoef >= resultadosPar[2]:
+                            if diceCoef >= 0.95 and numEnderCad == numEndCnefe and (numEnderCad not in [None, 0]) and (
+                                    numEndCnefe not in [None, 0]):
+                                resultadosPar = (idfamilia, idEndereco, diceCoef, 5)
 
-                        if diceCoef >= 0.95 and (numEnderCad in [None, 0]) and (numEndCnefe in [None, 0]):
-                            resultadosPar = (idfamilia, idEndereco, diceCoef, 4)
+                            if diceCoef >= 0.95 and (numEnderCad in [None, 0]) and (numEndCnefe in [None, 0]):
+                                resultadosPar = (idfamilia, idEndereco, diceCoef, 4)
 
-                        if diceCoef >= 0.95 and numEnderCad != numEndCnefe and (numEnderCad not in [None, 0]) and (
-                                numEndCnefe not in [None, 0]):
-                            resultadosPar = (idfamilia, idEndereco, diceCoef, 3)
+                            if diceCoef >= 0.95 and numEnderCad != numEndCnefe and (numEnderCad not in [None, 0]) and (
+                                    numEndCnefe not in [None, 0]):
+                                resultadosPar = (idfamilia, idEndereco, diceCoef, 3)
 
-                        if diceCoef < 0.95 and numEnderCad == numEndCnefe and (numEnderCad not in [None, 0]) and (
-                                numEndCnefe not in [None, 0]):
-                            resultadosPar = (idfamilia, idEndereco, diceCoef, 2)
+                            if diceCoef < 0.95 and numEnderCad == numEndCnefe and (numEnderCad not in [None, 0]) and (
+                                    numEndCnefe not in [None, 0]):
+                                resultadosPar = (idfamilia, idEndereco, diceCoef, 2)
 
-                        if diceCoef < 0.95 and (numEnderCad in [None, 0]) and (numEndCnefe in [None, 0]):
-                            resultadosPar = (idfamilia, idEndereco, diceCoef, 1)
+                            if diceCoef < 0.95 and (numEnderCad in [None, 0]) and (numEndCnefe in [None, 0]):
+                                resultadosPar = (idfamilia, idEndereco, diceCoef, 1)
 
-                        if diceCoef < 0.95 and numEnderCad != numEndCnefe and (numEnderCad not in [None, 0]) and (
-                                numEndCnefe not in [None, 0]):
-                            resultadosPar = (idfamilia, idEndereco, diceCoef, 0)
+                            if diceCoef < 0.95 and numEnderCad != numEndCnefe and (numEnderCad not in [None, 0]) and (
+                                    numEndCnefe not in [None, 0]):
+                                resultadosPar = (idfamilia, idEndereco, diceCoef, 0)
 
-                    i = i + 1
+                        i = i + 1
 
             resp = [str(resultadosPar[0]), str(resultadosPar[1]), str(resultadosPar[2]), str(resultadosPar[3])]
             # self.respostasThreads[faixaCadUnico].append(resultadosPar)
