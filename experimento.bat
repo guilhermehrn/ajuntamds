@@ -112,6 +112,7 @@ echo "Teminado o processamento do estado de DF"
 
 echo "Iniciando processamento do estado de SP"
 python ajuntamds.py -ca cad_unic_2013.base_cad_unic_2013 -cn cnefe_sp_35.35_sp -s resultado_35_sp_2013 -t 6
+python ajuntamds.py -ca cad_unic_2012.base_cad_unic_2012 -cn cnefe_sp_35.35_sp -s resultado_35_sp_2012_1 -t 6
 echo "Teminado o processamento do estado de SP "
 
 echo "####################################################################################"

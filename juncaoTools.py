@@ -107,6 +107,8 @@ class JuncaoTools:
 
         for familia in self.tarefasParaTheads[faixaCadUnico]:
 
+            conjuntoCidadeCnefe = None
+
             if int(familia[1]) != cidadeCorrente:
                 t = str(os.getpid())
 
@@ -118,7 +120,11 @@ class JuncaoTools:
                     conjuntoCidadeCnefe = dbaseth.selecionarTabela(nomeScehemaCnefe, [nometabelaCnefeCorrente],
                                                                self.formEndeCnefe, '', 0)
                 except(Exception):
-                    print ("ERRO 1 : Não existe cidade de ID" + str(familia[1]) + " na base do CNEFE para a familia de com ID: " + str (familia[0]))
+                    print("WARNING : Nao existe cidade de ID " + str(familia[1]) + " na base do CNEFE para a familia de com ID: " + str(familia[0]) + ". O Id endereco sera setado como NULL na tabela de resultado")
+                    cidadeCorrente = 0
+                    conjuntoCidadeCnefe = None
+                    resp = [str(familia[0]), "null", str(0.0),str(0)]
+                    dbaseth.inseirdados(nomeSchemaResult, nomeTabelaResult, [resp])
 
                 conjuntoCidadeCnefeDic = {}
                 quantidadeConjCnefe = {}
@@ -158,7 +164,7 @@ class JuncaoTools:
 
             enderecoCadUnic = [familia[2], familia[3], familia[4]]
             idfamilia = int(familia[0])
-            resultadosPar = (idfamilia, 0, 0.0, 0)
+            resultadosPar = (idfamilia, "null", 0.0, 0)
 
             if familia[6] == None:
                 preCepCad = str(int(0) // 1000)
@@ -186,8 +192,9 @@ class JuncaoTools:
                             #diceCoef = self.similar.dice_coefficient1(','.join(enderecoCadUnic).replace(" ", ""), ','.join(enderecoCnefe).replace(" ", ""))
 
                         except(Exception):
-                            mensagem = "Erro na comparação entre a instancia do Cad. Unico" + str(idfamilia) + "e o endereço do CNEFE " + str(idEndereco)
+                            mensagem = "WARNING: Não foi possivel a comparação entre a instancia do Cad. Unico de ID" + str(idfamilia) + "e o endereço do CNEFE de ID" + str(idEndereco) + ". Coeficiente setado como zero."
                             print(mensagem)
+                            diceCoef = 0.0
 
                         if diceCoef >= resultadosPar[2]:
                             if diceCoef >= 0.95 and numEnderCad == numEndCnefe and (numEnderCad not in [None, 0]) and (
